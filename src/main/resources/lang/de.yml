@@ -2,6 +2,7 @@ messages:
   player-only: "&cDieser Befehl kann nur von einem Spieler verwendet werden."
   no-permission: "&cDu hast keine Berechtigung für diesen Befehl."
   economy-unavailable: "&eDonutShop wartet auf einen Vault-Economy-Anbieter. Bitte versuche es gleich erneut."
+  reload-failed: "&cDonutShop konnte nicht neu geladen werden. Die vorherige Shop-Konfiguration bleibt aktiv."
   reload-success: "&aDonutShop wurde erfolgreich neu geladen."
   category-not-found: "&cKategorie &f{category} &cwurde nicht gefunden."
   purchase-success: "&aGekauft: &f{amount}x {item} &afür &f{price}&a."
