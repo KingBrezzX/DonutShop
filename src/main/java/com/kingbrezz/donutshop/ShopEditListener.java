@@ -1,5 +1,6 @@
 package com.kingbrezz.donutshop;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -7,8 +8,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.ItemStack;
 
-public final class ShopEditListener implements Listener {
+public final class ShopEditListener
+        implements Listener {
 
     private final DonutShop plugin;
 
@@ -20,7 +23,8 @@ public final class ShopEditListener implements Listener {
     public void onInventoryClick(
             InventoryClickEvent event
     ) {
-        if (!(event.getWhoClicked() instanceof Player player)) {
+        if (!(event.getWhoClicked()
+                instanceof Player player)) {
             return;
         }
 
@@ -28,39 +32,75 @@ public final class ShopEditListener implements Listener {
             return;
         }
 
-        /*
-         * Completely protect the editor GUI from normal
-         * inventory manipulation.
-         */
-        event.setCancelled(true);
+        int topSize =
+                event.getView()
+                        .getTopInventory()
+                        .getSize();
 
         /*
-         * Ignore clicks outside the top inventory.
+         * Click inside the editor GUI.
          */
-        if (event.getRawSlot() < 0 ||
-                event.getRawSlot()
-                        >= event.getView()
-                        .getTopInventory()
-                        .getSize()) {
+        if (event.getRawSlot() >= 0 &&
+                event.getRawSlot() < topSize) {
+
+            event.setCancelled(true);
+
+            ShopEditMenu.handleClick(
+                    plugin,
+                    player,
+                    event.getRawSlot(),
+                    event.getClick()
+            );
+
             return;
         }
 
         /*
-         * Only process actual top-inventory slots.
+         * Click inside the player's inventory.
+         *
+         * The item is copied to the cursor instead
+         * of being removed from the player's inventory.
          */
-        ShopEditMenu.handleClick(
-                plugin,
-                player,
-                event.getRawSlot(),
-                event.getClick()
-        );
+        if (event.getRawSlot() >= topSize) {
+
+            ItemStack clicked =
+                    event.getCurrentItem();
+
+            if (clicked == null ||
+                    clicked.getType() == Material.AIR) {
+                return;
+            }
+
+            if (!event.isLeftClick() &&
+                    !event.isRightClick()) {
+                return;
+            }
+
+            event.setCancelled(true);
+
+            ItemStack selected =
+                    clicked.clone();
+
+            selected.setAmount(1);
+
+            player.setItemOnCursor(
+                    selected
+            );
+
+            plugin.getLanguageManager()
+                    .send(
+                            player,
+                            "messages.shopedit-item-selected"
+                    );
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryDrag(
             InventoryDragEvent event
     ) {
-        if (!(event.getWhoClicked() instanceof Player player)) {
+        if (!(event.getWhoClicked()
+                instanceof Player player)) {
             return;
         }
 
@@ -68,14 +108,31 @@ public final class ShopEditListener implements Listener {
             return;
         }
 
-        event.setCancelled(true);
+        int topSize =
+                event.getView()
+                        .getTopInventory()
+                        .getSize();
+
+        /*
+         * Prevent dragging items into or around
+         * the editor GUI.
+         */
+        for (int rawSlot :
+                event.getRawSlots()) {
+
+            if (rawSlot < topSize) {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 
     @EventHandler
     public void onInventoryClose(
             InventoryCloseEvent event
     ) {
-        if (!(event.getPlayer() instanceof Player player)) {
+        if (!(event.getPlayer()
+                instanceof Player player)) {
             return;
         }
 
@@ -83,6 +140,8 @@ public final class ShopEditListener implements Listener {
             return;
         }
 
-        ShopEditMenu.removeSession(player);
+        ShopEditMenu.removeSession(
+                player
+        );
     }
-                           }
+                }
