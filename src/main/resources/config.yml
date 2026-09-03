@@ -5,7 +5,7 @@
 # ============================================================
 
 # id | en | zh | vi | de
-language: en
+language: id
 
 # ------------------------------------------------------------
 # Global validation / safety
@@ -38,7 +38,7 @@ shop:
   max-purchase-amount: 2304
 
   main-menu:
-    title: "&8Shop"
+    title: "&8&lDonutShop"
     size: 27
     categories:
       - end
@@ -47,9 +47,9 @@ shop:
       - food
       - farm
     category-slots:
+      - 10
       - 11
       - 12
-      - 13
       - 14
       - 15
 
@@ -59,8 +59,8 @@ shop:
     back-name: "&c&lBack"
 
   item-lore:
-    buy: ""
-    click: "&eLeft-click to buy from the shop &8• &eShift-click for bulk"
+    buy: "&7Price: &a${price}"
+    click: "&eLeft-click &7to buy &8• &eShift-click &7for bulk"
 
 # ------------------------------------------------------------
 # ShopEdit
