@@ -1,0 +1,40 @@
+# ============================================================
+# DonutShop - 简体中文
+# Author: KingBrezz
+# ============================================================
+
+messages:
+
+  player-only: "&c此命令只能由玩家使用。"
+
+  no-permission: "&c你没有权限使用此命令。"
+
+  reload-success: "&aDonutShop 已成功重新加载。"
+
+  category-not-found: "&c找不到分类 &f{category}&c。"
+
+  purchase-success: "&a成功购买 &f{amount}x {item} &a，花费 &f{price}&a。"
+
+  sell-success: "&a成功出售 &f{amount}x {item} &a，获得 &f{price}&a。"
+
+  not-enough-money: "&c你的余额不足。"
+
+  not-enough-items: "&c你没有足够的物品。"
+
+  inventory-full: "&c你的背包没有足够的空间。"
+
+  purchase-failed: "&c购买失败，请稍后再试。"
+
+  cannot-buy: "&c此物品无法购买。"
+
+  cannot-sell: "&c此物品无法出售。"
+
+  shopedit-disabled: "&cShopEdit 当前已被禁用。"
+
+  shopedit-usage: "&e用法: &f/shopedit <end|nether|gear|food|farm>"
+
+  shopedit-invalid-item: "&c选择的物品无效。"
+
+  shopedit-item-saved: "&a商店物品保存成功。"
+
+  shopedit-item-removed: "&a商店物品删除成功。"
