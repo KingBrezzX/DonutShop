@@ -1,11 +1,12 @@
 package com.kingbrezz.donutshop;
 
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public final class ShopCommand
         implements CommandExecutor, TabCompleter {
@@ -25,17 +26,29 @@ public final class ShopCommand
     ) {
         if (!(sender instanceof Player player)) {
             plugin.getLanguageManager()
-                    .send(sender, "messages.player-only");
+                    .send(
+                            sender,
+                            "messages.player-only"
+                    );
             return true;
         }
 
-        if (!player.hasPermission("donutshop.use")) {
+        if (!player.hasPermission(
+                "donutshop.use"
+        )) {
             plugin.getLanguageManager()
-                    .send(player, "messages.no-permission");
+                    .send(
+                            player,
+                            "messages.no-permission"
+                    );
             return true;
         }
 
-        new ShopMenu(plugin).openMainMenu(player);
+        ShopMenu.openMainMenu(
+                plugin,
+                player
+        );
+
         return true;
     }
 
@@ -46,6 +59,6 @@ public final class ShopCommand
             String alias,
             String[] args
     ) {
-        return new ArrayList<>();
+        return List.of();
     }
-}
+        }
