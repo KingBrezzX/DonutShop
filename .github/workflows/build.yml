@@ -22,46 +22,65 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 21
+      - name: Set up Java 21 (Gradle runtime)
+        id: java21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: gradle
 
+      - name: Install Java 25 toolchain
+        id: java25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
       - name: Set up Gradle
+        env:
+          JAVA_HOME: ${{ steps.java21.outputs.path }}
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '8.14.5'
 
       - name: Prepare Gradle Wrapper
+        env:
+          JAVA_HOME: ${{ steps.java21.outputs.path }}
         shell: bash
         run: |
           set -euo pipefail
           if [[ ! -f gradle/wrapper/gradle-wrapper.jar ]]; then
-            gradle --no-daemon wrapper --gradle-version 8.10.2 --distribution-type bin
+            gradle --no-daemon wrapper --gradle-version 8.14.5 --distribution-type bin
           fi
           chmod +x gradlew
 
       - name: Verify wrapper
+        env:
+          JAVA_HOME: ${{ steps.java21.outputs.path }}
         run: ./gradlew --version
 
       - name: Clean build
+        env:
+          JAVA_HOME: ${{ steps.java21.outputs.path }}
         run: ./gradlew clean build --no-daemon --stacktrace
 
       - name: Verify release JAR
         shell: bash
         run: |
           set -euo pipefail
-          test -f build/libs/DonutShop-${{ '1.1.1' }}.jar
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'plugin.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'config.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'shop.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'lang/id.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'lang/en.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'lang/zh.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'lang/vi.yml'
-          jar tf build/libs/DonutShop-${{ '1.1.1' }}.jar | grep -Fx 'lang/de.yml'
+          mapfile -t jars < <(find build/libs -maxdepth 1 -type f -name 'DonutShop-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' | sort)
+          test "${#jars[@]}" -eq 1
+          jar="${jars[0]}"
+          echo "Release JAR: ${jar}"
+          jar tf "${jar}" | grep -Fx 'plugin.yml'
+          jar tf "${jar}" | grep -Fx 'config.yml'
+          jar tf "${jar}" | grep -Fx 'shop.yml'
+          jar tf "${jar}" | grep -Fx 'lang/id.yml'
+          jar tf "${jar}" | grep -Fx 'lang/en.yml'
+          jar tf "${jar}" | grep -Fx 'lang/zh.yml'
+          jar tf "${jar}" | grep -Fx 'lang/vi.yml'
+          jar tf "${jar}" | grep -Fx 'lang/de.yml'
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
