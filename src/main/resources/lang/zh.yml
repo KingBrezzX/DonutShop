@@ -1,6 +1,7 @@
 messages:
   player-only: "&c此命令只能由玩家使用。"
   no-permission: "&c你没有权限使用此命令。"
+  economy-unavailable: "&eDonutShop 正在等待 Vault 经济提供程序。请稍后再试。"
   reload-success: "&aDonutShop 已成功重新加载。"
   category-not-found: "&c找不到分类 &f{category}&c。"
   purchase-success: "&a成功购买 &f{amount}x {item} &a，花费 &f{price}&a。"

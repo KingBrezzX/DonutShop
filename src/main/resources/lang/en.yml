@@ -1,6 +1,7 @@
 messages:
   player-only: "&cThis command can only be used by a player."
   no-permission: "&cYou do not have permission to use this command."
+  economy-unavailable: "&eDonutShop is waiting for a Vault Economy provider. Please try again shortly."
   reload-success: "&aDonutShop has been reloaded successfully."
   category-not-found: "&cCategory &f{category} &cwas not found."
   purchase-success: "&aPurchased &f{amount}x {item} &afor &f{price}&a."
