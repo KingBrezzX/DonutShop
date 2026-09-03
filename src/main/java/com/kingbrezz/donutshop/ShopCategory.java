@@ -12,18 +12,12 @@ public final class ShopCategory {
     private final String id;
     private final String name;
     private final Material icon;
-    private final List<String> lore;
     private final List<ShopItem> items = new ArrayList<>();
 
     public ShopCategory(String id, String name, Material icon) {
-        this(id, name, icon, List.of());
-    }
-
-    public ShopCategory(String id, String name, Material icon, List<String> lore) {
         this.id = id;
         this.name = name;
         this.icon = icon;
-        this.lore = lore == null ? List.of() : List.copyOf(lore);
     }
 
     public void addItem(ShopItem item) {
@@ -47,6 +41,5 @@ public final class ShopCategory {
     public String id() { return id; }
     public String name() { return name; }
     public Material icon() { return icon; }
-    public List<String> lore() { return lore; }
     public Collection<ShopItem> items() { return List.copyOf(items); }
 }
