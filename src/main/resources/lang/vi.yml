@@ -2,7 +2,6 @@ messages:
   player-only: "&cLệnh này chỉ có thể được sử dụng bởi người chơi."
   no-permission: "&cBạn không có quyền sử dụng lệnh này."
   economy-unavailable: "&eDonutShop đang chờ nhà cung cấp Economy của Vault. Vui lòng thử lại sau giây lát."
-  reload-failed: "&cDonutShop tải lại thất bại. Cấu hình cửa hàng trước đó vẫn được giữ nguyên."
   reload-success: "&aDonutShop đã được tải lại thành công."
   category-not-found: "&cKhông tìm thấy danh mục &f{category}&c."
   purchase-success: "&aĐã mua &f{amount}x {item} &avới giá &f{price}&a."

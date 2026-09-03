@@ -2,7 +2,6 @@ messages:
   player-only: "&cPerintah ini hanya dapat digunakan oleh pemain."
   no-permission: "&cKamu tidak memiliki izin untuk menggunakan perintah ini."
   economy-unavailable: "&eDonutShop sedang menunggu Economy dari Vault. Coba lagi sebentar."
-  reload-failed: "&cDonutShop gagal dimuat ulang. Konfigurasi shop sebelumnya tetap digunakan."
   reload-success: "&aDonutShop berhasil dimuat ulang."
   category-not-found: "&cKategori &f{category} &ctidak ditemukan."
   purchase-success: "&aBerhasil membeli &f{amount}x {item} &adengan harga &f{price}&a."
