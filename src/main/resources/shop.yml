@@ -1,0 +1,402 @@
+# ============================================================
+# DonutShop
+# Author: KingBrezz
+#
+# Categories:
+# End
+# Nether
+# Gear
+# Food
+# Farm
+#
+# Prices are configurable.
+# Buy/Sell can be independently enabled with their prices.
+# ============================================================
+
+categories:
+
+  # ==========================================================
+  # END
+  # ==========================================================
+
+  end:
+    name: "&5&lEnd"
+    icon: ENDER_EYE
+
+    items:
+
+      ender_chest:
+        material: ENDER_CHEST
+        name: "&fEnder Chest"
+        lore: []
+        buy: 2500
+        sell: 0
+        slot: 9
+
+      ender_pearl:
+        material: ENDER_PEARL
+        name: "&fEnder Pearl"
+        lore: []
+        buy: 75
+        sell: 0
+        slot: 10
+
+      end_stone:
+        material: END_STONE
+        name: "&fEnd Stone"
+        lore: []
+        buy: 8
+        sell: 0
+        slot: 11
+
+      dragons_breath:
+        material: DRAGON_BREATH
+        name: "&fDragon's Breath"
+        lore: []
+        buy: 1000
+        sell: 0
+        slot: 12
+
+      end_rod:
+        material: END_ROD
+        name: "&fEnd Rod"
+        lore: []
+        buy: 100
+        sell: 0
+        slot: 13
+
+      chorus_fruit:
+        material: CHORUS_FRUIT
+        name: "&fChorus Fruit"
+        lore: []
+        buy: 25
+        sell: 0
+        slot: 14
+
+      popped_chorus_fruit:
+        material: POPPED_CHORUS_FRUIT
+        name: "&fPopped Chorus Fruit"
+        lore: []
+        buy: 15
+        sell: 0
+        slot: 15
+
+      shulker_shell:
+        material: SHULKER_SHELL
+        name: "&fShulker Shell"
+        lore: []
+        buy: 350
+        sell: 0
+        slot: 16
+
+      shulker_box:
+        material: SHULKER_BOX
+        name: "&fShulker Box"
+        lore: []
+        buy: 800
+        sell: 0
+        slot: 17
+
+  # ==========================================================
+  # NETHER
+  # ==========================================================
+
+  nether:
+    name: "&c&lNether"
+    icon: NETHERRACK
+
+    items:
+
+      blaze_rod:
+        material: BLAZE_ROD
+        name: "&fBlaze Rod"
+        lore: []
+        buy: 150
+        sell: 0
+        slot: 9
+
+      nether_wart:
+        material: NETHER_WART
+        name: "&fNether Wart"
+        lore: []
+        buy: 25
+        sell: 0
+        slot: 10
+
+      glowstone_dust:
+        material: GLOWSTONE_DUST
+        name: "&fGlowstone Dust"
+        lore: []
+        buy: 15
+        sell: 0
+        slot: 11
+
+      magma_cream:
+        material: MAGMA_CREAM
+        name: "&fMagma Cream"
+        lore: []
+        buy: 25
+        sell: 0
+        slot: 12
+
+      ghast_tear:
+        material: GHAST_TEAR
+        name: "&fGhast Tear"
+        lore: []
+        buy: 350
+        sell: 0
+        slot: 13
+
+      quartz:
+        material: QUARTZ
+        name: "&fNether Quartz"
+        lore: []
+        buy: 15
+        sell: 0
+        slot: 14
+
+      soul_sand:
+        material: SOUL_SAND
+        name: "&fSoul Sand"
+        lore: []
+        buy: 50
+        sell: 0
+        slot: 15
+
+      magma_block:
+        material: MAGMA_BLOCK
+        name: "&fMagma Block"
+        lore: []
+        buy: 35
+        sell: 0
+        slot: 16
+
+      crying_obsidian:
+        material: CRYING_OBSIDIAN
+        name: "&fCrying Obsidian"
+        lore: []
+        buy: 150
+        sell: 0
+        slot: 17
+
+  # ==========================================================
+  # GEAR
+  # ==========================================================
+
+  gear:
+    name: "&6&lGear"
+    icon: DIAMOND_CHESTPLATE
+
+    items:
+
+      obsidian:
+        material: OBSIDIAN
+        name: "&fObsidian"
+        lore: []
+        buy: 100
+        sell: 0
+        slot: 9
+
+      end_crystal:
+        material: END_CRYSTAL
+        name: "&fEnd Crystal"
+        lore: []
+        buy: 350
+        sell: 0
+        slot: 10
+
+      respawn_anchor:
+        material: RESPAWN_ANCHOR
+        name: "&fRespawn Anchor"
+        lore: []
+        buy: 1000
+        sell: 0
+        slot: 11
+
+      glowstone:
+        material: GLOWSTONE
+        name: "&fGlowstone"
+        lore: []
+        buy: 100
+        sell: 0
+        slot: 12
+
+      totem:
+        material: TOTEM_OF_UNDYING
+        name: "&fTotem of Undying"
+        lore: []
+        buy: 1250
+        sell: 0
+        slot: 13
+
+      ender_pearl:
+        material: ENDER_PEARL
+        name: "&fEnder Pearl"
+        lore: []
+        buy: 75
+        sell: 0
+        slot: 14
+
+      golden_apple:
+        material: GOLDEN_APPLE
+        name: "&fGolden Apple"
+        lore: []
+        buy: 250
+        sell: 0
+        slot: 15
+
+      experience_bottle:
+        material: EXPERIENCE_BOTTLE
+        name: "&fBottle O' Enchanting"
+        lore: []
+        buy: 100
+        sell: 0
+        slot: 16
+
+  # ==========================================================
+  # FOOD
+  # ==========================================================
+
+  food:
+    name: "&a&lFood"
+    icon: COOKED_BEEF
+
+    items:
+
+      potato:
+        material: POTATO
+        name: "&fPotato"
+        lore: []
+        buy: 75
+        sell: 0
+        slot: 9
+
+      sweet_berries:
+        material: SWEET_BERRIES
+        name: "&fSweet Berries"
+        lore: []
+        buy: 50
+        sell: 0
+        slot: 10
+
+      melon_slice:
+        material: MELON_SLICE
+        name: "&fMelon Slice"
+        lore: []
+        buy: 10
+        sell: 0
+        slot: 11
+
+      carrot:
+        material: CARROT
+        name: "&fCarrot"
+        lore: []
+        buy: 65
+        sell: 0
+        slot: 12
+
+      apple:
+        material: APPLE
+        name: "&fApple"
+        lore: []
+        buy: 25
+        sell: 0
+        slot: 13
+
+      cooked_chicken:
+        material: COOKED_CHICKEN
+        name: "&fApple"
+        lore: []
+        buy: 30
+        sell: 0
+        slot: 14
+
+      steak:
+        material: COOKED_BEEF
+        name: "&fSteak"
+        lore: []
+        buy: 35
+        sell: 0
+        slot: 15
+
+      golden_carrot:
+        material: GOLDEN_CARROT
+        name: "&fGolden Carrot"
+        lore: []
+        buy: 50
+        sell: 0
+        slot: 16
+
+      golden_apple:
+        material: GOLDEN_APPLE
+        name: "&fGolden Apple"
+        lore: []
+        buy: 250
+        sell: 0
+        slot: 17
+
+  # ==========================================================
+  # FARM
+  # ==========================================================
+
+  farm:
+    name: "&2&lFarm"
+    icon: WHEAT
+
+    items:
+
+      sugar_cane:
+        material: SUGAR_CANE
+        name: "&fSugar Cane"
+        lore: []
+        buy: 15
+        sell: 0
+        slot: 9
+
+      red_mushroom:
+        material: RED_MUSHROOM
+        name: "&fRed Mushroom"
+        lore: []
+        buy: 25
+        sell: 0
+        slot: 10
+
+      crimson_fungus:
+        material: CRIMSON_FUNGUS
+        name: "&fCrimson Fungus"
+        lore: []
+        buy: 25
+        sell: 0
+        slot: 11
+
+      wheat:
+        material: WHEAT
+        name: "&fWheat"
+        lore: []
+        buy: 10
+        sell: 0
+        slot: 12
+
+      wheat_seeds:
+        material: WHEAT_SEEDS
+        name: "&fWheat Seeds"
+        lore: []
+        buy: 5
+        sell: 0
+        slot: 13
+
+      beetroot_seeds:
+        material: BEETROOT_SEEDS
+        name: "&fBeetroot Seeds"
+        lore: []
+        buy: 5
+        sell: 0
+        slot: 14
+
+      cocoa_beans:
+        material: COCOA_BEANS
+        name: "&fCocoa Beans"
+        lore: []
+        buy: 20
+        sell: 0
+        slot: 15
