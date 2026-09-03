@@ -17,10 +17,11 @@ import java.util.UUID;
 
 public final class ShopEditMenu {
 
+    private static final String TITLE_PREFIX =
+            "§0DonutShop Editor §8» ";
+
     private static final Map<UUID, EditSession> SESSIONS =
             new HashMap<>();
-
-    private static final String PREFIX = "§0DonutShop Editor";
 
     private ShopEditMenu() {
     }
@@ -30,19 +31,31 @@ public final class ShopEditMenu {
             Player player,
             ShopCategory category
     ) {
-        Inventory inventory = Bukkit.createInventory(
-                null,
-                27,
-                PREFIX + " §8» " + color(category.name())
-        );
+        if (category == null) {
+            return;
+        }
 
-        for (ShopItem item : category.items()) {
-            if (item.slot() < 0 || item.slot() >= 27) {
+        Inventory inventory =
+                Bukkit.createInventory(
+                        null,
+                        27,
+                        TITLE_PREFIX
+                                + color(
+                                category.name()
+                        )
+                );
+
+        for (ShopItem item :
+                category.items()) {
+
+            int slot = item.slot();
+
+            if (slot < 0 || slot >= 27) {
                 continue;
             }
 
             inventory.setItem(
-                    item.slot(),
+                    slot,
                     createEditorItem(item)
             );
         }
@@ -59,18 +72,23 @@ public final class ShopEditMenu {
 
         SESSIONS.put(
                 player.getUniqueId(),
-                new EditSession(category.id())
+                new EditSession(
+                        category.id()
+                )
         );
 
-        player.openInventory(inventory);
+        player.openInventory(
+                inventory
+        );
     }
 
     public static boolean isEditorInventory(
             Player player
     ) {
-        return SESSIONS.containsKey(
-                player.getUniqueId()
-        );
+        return player != null &&
+                SESSIONS.containsKey(
+                        player.getUniqueId()
+                );
     }
 
     public static void handleClick(
@@ -80,7 +98,9 @@ public final class ShopEditMenu {
             ClickType click
     ) {
         EditSession session =
-                SESSIONS.get(player.getUniqueId());
+                SESSIONS.get(
+                        player.getUniqueId()
+                );
 
         if (session == null) {
             return;
@@ -88,24 +108,39 @@ public final class ShopEditMenu {
 
         ShopCategory category =
                 plugin.getShopManager()
-                        .getCategory(session.categoryId());
+                        .getCategory(
+                                session.categoryId()
+                        );
 
         if (category == null) {
             close(player);
             return;
         }
 
+        /*
+         * Back button.
+         */
         if (slot == 18) {
             close(player);
-            ShopMenu.openMainMenu(plugin, player);
+            ShopMenu.openMainMenu(
+                    plugin,
+                    player
+            );
             return;
         }
 
+        /*
+         * Information button.
+         */
         if (slot == 26) {
             return;
         }
 
-        if (slot < 0 || slot >= 27) {
+        /*
+         * Reserved GUI slots.
+         */
+        if (slot < 0 ||
+                slot >= 18) {
             return;
         }
 
@@ -113,21 +148,19 @@ public final class ShopEditMenu {
                 player.getItemOnCursor();
 
         /*
-         * Player has selected an item from their cursor.
-         * Place or replace the shop item.
+         * Cursor contains an item:
+         * create / replace shop item.
          */
         if (cursor != null &&
                 cursor.getType() != Material.AIR) {
 
-            ShopItem created =
-                    createShopItemFromCursor(
-                            plugin,
-                            category,
-                            slot,
-                            cursor
+            ShopItem newItem =
+                    createFromCursor(
+                            cursor,
+                            slot
                     );
 
-            if (created == null) {
+            if (newItem == null) {
                 plugin.getLanguageManager()
                         .send(
                                 player,
@@ -136,13 +169,36 @@ public final class ShopEditMenu {
                 return;
             }
 
+            ShopItem oldItem =
+                    category.getItemBySlot(
+                            slot
+                    );
+
+            if (oldItem != null &&
+                    !oldItem.id().equalsIgnoreCase(
+                            newItem.id()
+                    )) {
+
+                removeConfigItem(
+                        plugin,
+                        category,
+                        oldItem
+                );
+
+                category.removeItem(
+                        oldItem.id()
+                );
+            }
+
             saveItem(
                     plugin,
                     category,
-                    created
+                    newItem
             );
 
-            player.setItemOnCursor(null);
+            player.setItemOnCursor(
+                    null
+            );
 
             reopen(
                     plugin,
@@ -160,66 +216,106 @@ public final class ShopEditMenu {
         }
 
         /*
-         * Empty cursor + existing slot = remove item.
+         * Empty cursor + occupied slot:
+         * remove the shop item.
          */
         ShopItem existing =
-                category.getItemBySlot(slot);
+                category.getItemBySlot(
+                        slot
+                );
 
-        if (existing != null) {
-
-            removeItem(
-                    plugin,
-                    category,
-                    existing
-            );
-
-            reopen(
-                    plugin,
-                    player,
-                    category
-            );
-
-            plugin.getLanguageManager()
-                    .send(
-                            player,
-                            "messages.shopedit-item-removed"
-                    );
+        if (existing == null) {
+            return;
         }
+
+        removeConfigItem(
+                plugin,
+                category,
+                existing
+        );
+
+        category.removeItem(
+                existing.id()
+        );
+
+        if (plugin.getConfig()
+                .getBoolean(
+                        "shop-edit.auto-save",
+                        true
+                )) {
+
+            plugin.getShopManager()
+                    .save();
+        }
+
+        reopen(
+                plugin,
+                player,
+                category
+        );
+
+        plugin.getLanguageManager()
+                .send(
+                        player,
+                        "messages.shopedit-item-removed"
+                );
     }
 
-    private static ShopItem createShopItemFromCursor(
-            DonutShop plugin,
-            ShopCategory category,
-            int slot,
-            ItemStack cursor
+    private static ShopItem createFromCursor(
+            ItemStack cursor,
+            int slot
     ) {
-        Material material = cursor.getType();
+        if (cursor == null ||
+                cursor.getType() == Material.AIR) {
+            return null;
+        }
 
-        ItemMeta meta = cursor.getItemMeta();
+        Material material =
+                cursor.getType();
 
-        String name;
+        ItemMeta meta =
+                cursor.getItemMeta();
+
+        String displayName;
 
         if (meta != null &&
                 meta.hasDisplayName()) {
-            name = meta.getDisplayName();
+
+            displayName =
+                    meta.getDisplayName();
+
         } else {
-            name = "&f" +
-                    material.name()
-                            .replace('_', ' ');
+
+            displayName =
+                    "&f"
+                            + material.name()
+                            .replace(
+                                    '_',
+                                    ' '
+                            );
         }
 
-        List<String> lore = new ArrayList<>();
+        List<String> lore =
+                new ArrayList<>();
 
         if (meta != null &&
-                meta.hasLore()) {
+                meta.hasLore() &&
+                meta.getLore() != null) {
+
             lore.addAll(
                     meta.getLore()
             );
         }
 
         double price =
-                extractPrice(name);
+                extractPrice(
+                        displayName
+                );
 
+        /*
+         * Original ShopEdit behavior:
+         * [PRICE] 250 sets an explicit price.
+         */
         if (price <= 0) {
             price = 1.0;
         }
@@ -227,12 +323,15 @@ public final class ShopEditMenu {
         String itemId =
                 material.name()
                         .toLowerCase()
-                        .replace('_', '-');
+                        .replace(
+                                '_',
+                                '-'
+                        );
 
         return new ShopItem(
                 itemId,
                 material,
-                name,
+                displayName,
                 lore,
                 price,
                 0.0,
@@ -248,10 +347,13 @@ public final class ShopEditMenu {
         }
 
         String stripped =
-                ChatColor.stripColor(text)
-                        .trim();
+                ChatColor.stripColor(
+                        text
+                ).trim();
 
-        if (!stripped.startsWith("[PRICE]")) {
+        if (!stripped
+                .toUpperCase()
+                .startsWith("[PRICE]")) {
             return 0.0;
         }
 
@@ -261,7 +363,18 @@ public final class ShopEditMenu {
                 ).trim();
 
         try {
-            return Double.parseDouble(value);
+            double price =
+                    Double.parseDouble(
+                            value
+                    );
+
+            if (!Double.isFinite(price) ||
+                    price <= 0) {
+                return 0.0;
+            }
+
+            return price;
+
         } catch (NumberFormatException ignored) {
             return 0.0;
         }
@@ -280,57 +393,54 @@ public final class ShopEditMenu {
                         + ".items."
                         + item.id();
 
-        plugin.getShopManager()
-                .setConfigValue(
-                        base + ".material",
-                        item.material().name()
-                );
+        ShopManager manager =
+                plugin.getShopManager();
 
-        plugin.getShopManager()
-                .setConfigValue(
-                        base + ".name",
-                        item.displayName()
-                );
+        manager.setConfigValue(
+                base + ".material",
+                item.material().name()
+        );
 
-        plugin.getShopManager()
-                .setConfigValue(
-                        base + ".lore",
-                        item.lore()
-                );
+        manager.setConfigValue(
+                base + ".name",
+                item.displayName()
+        );
 
-        plugin.getShopManager()
-                .setConfigValue(
-                        base + ".buy",
-                        item.buyPrice()
-                );
+        manager.setConfigValue(
+                base + ".lore",
+                item.lore()
+        );
 
-        plugin.getShopManager()
-                .setConfigValue(
-                        base + ".sell",
-                        item.sellPrice()
-                );
+        manager.setConfigValue(
+                base + ".buy",
+                item.buyPrice()
+        );
 
-        plugin.getShopManager()
-                .setConfigValue(
-                        base + ".slot",
-                        item.slot()
-                );
+        manager.setConfigValue(
+                base + ".sell",
+                item.sellPrice()
+        );
 
-        if (plugin.getConfig().getBoolean(
-                "shop-edit.auto-save",
-                true
-        )) {
-            plugin.getShopManager().save();
+        manager.setConfigValue(
+                base + ".slot",
+                item.slot()
+        );
+
+        if (plugin.getConfig()
+                .getBoolean(
+                        "shop-edit.auto-save",
+                        true
+                )) {
+
+            manager.save();
         }
     }
 
-    private static void removeItem(
+    private static void removeConfigItem(
             DonutShop plugin,
             ShopCategory category,
             ShopItem item
     ) {
-        category.removeItem(item.id());
-
         String path =
                 "categories."
                         + category.id()
@@ -338,14 +448,9 @@ public final class ShopEditMenu {
                         + item.id();
 
         plugin.getShopManager()
-                .removeConfigSection(path);
-
-        if (plugin.getConfig().getBoolean(
-                "shop-edit.auto-save",
-                true
-        )) {
-            plugin.getShopManager().save();
-        }
+                .removeConfigSection(
+                        path
+                );
     }
 
     private static void reopen(
@@ -353,21 +458,30 @@ public final class ShopEditMenu {
             Player player,
             ShopCategory category
     ) {
-        Bukkit.getScheduler().runTask(
-                plugin,
-                () -> open(
+        Bukkit.getScheduler()
+                .runTask(
                         plugin,
-                        player,
-                        category
-                )
-        );
+                        () -> {
+                            if (!player.isOnline()) {
+                                return;
+                            }
+
+                            open(
+                                    plugin,
+                                    player,
+                                    category
+                            );
+                        }
+                );
     }
 
     private static ItemStack createEditorItem(
             ShopItem item
     ) {
         ItemStack stack =
-                new ItemStack(item.material());
+                new ItemStack(
+                        item.material()
+                );
 
         ItemMeta meta =
                 stack.getItemMeta();
@@ -377,7 +491,9 @@ public final class ShopEditMenu {
         }
 
         meta.setDisplayName(
-                color(item.displayName())
+                color(
+                        item.displayName()
+                )
         );
 
         List<String> lore =
@@ -387,19 +503,31 @@ public final class ShopEditMenu {
 
         lore.add("");
         lore.add(
-                color("&7Buy: &f" + item.buyPrice())
+                color(
+                        "&7Buy: &f"
+                                + item.buyPrice()
+                )
         );
         lore.add(
-                color("&7Sell: &f" + item.sellPrice())
+                color(
+                        "&7Sell: &f"
+                                + item.sellPrice()
+                )
         );
         lore.add("");
         lore.add(
-                color("&eEditor Item")
+                color(
+                        "&eShop Editor Item"
+                )
         );
 
-        meta.setLore(lore);
+        meta.setLore(
+                lore
+        );
 
-        stack.setItemMeta(meta);
+        stack.setItemMeta(
+                meta
+        );
 
         return stack;
     }
@@ -421,11 +549,17 @@ public final class ShopEditMenu {
                 color("&cBack")
         );
 
-        meta.setLore(List.of(
-                color("&7Return to main menu.")
-        ));
+        meta.setLore(
+                List.of(
+                        color(
+                                "&7Return to main menu."
+                        )
+                )
+        );
 
-        item.setItemMeta(meta);
+        item.setItemMeta(
+                meta
+        );
 
         return item;
     }
@@ -444,32 +578,64 @@ public final class ShopEditMenu {
         }
 
         meta.setDisplayName(
-                color("&bShopEdit Help")
+                color(
+                        "&bShopEdit Help"
+                )
         );
 
-        meta.setLore(List.of(
-                color("&7Select an item from your"),
-                color("&7inventory and place it here."),
-                "",
-                color("&7Use display name:"),
-                color("&f[PRICE] 250"),
-                "",
-                color("&7Empty slot + empty cursor"),
-                color("&7removes the shop item.")
-        ));
+        meta.setLore(
+                List.of(
+                        color(
+                                "&7Select an item from your inventory."
+                        ),
+                        color(
+                                "&7Then place it into a shop slot."
+                        ),
+                        "",
+                        color(
+                                "&7Custom price format:"
+                        ),
+                        color(
+                                "&f[PRICE] 250"
+                        ),
+                        "",
+                        color(
+                                "&7Empty cursor + filled slot:"
+                        ),
+                        color(
+                                "&cremoves the item"
+                        )
+                )
+        );
 
-        item.setItemMeta(meta);
+        item.setItemMeta(
+                meta
+        );
 
         return item;
     }
 
-    public static void close(Player player) {
+    public static void close(
+            Player player
+    ) {
+        if (player == null) {
+            return;
+        }
+
         SESSIONS.remove(
                 player.getUniqueId()
         );
     }
 
-    private static String color(String text) {
+    public static void removeSession(
+            Player player
+    ) {
+        close(player);
+    }
+
+    private static String color(
+            String text
+    ) {
         if (text == null) {
             return "";
         }
@@ -484,4 +650,4 @@ public final class ShopEditMenu {
             String categoryId
     ) {
     }
-}
+        }
