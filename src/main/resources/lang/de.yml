@@ -1,0 +1,40 @@
+# ============================================================
+# DonutShop - Deutsch
+# Author: KingBrezz
+# ============================================================
+
+messages:
+
+  player-only: "&cDieser Befehl kann nur von einem Spieler verwendet werden."
+
+  no-permission: "&cDu hast keine Berechtigung, diesen Befehl zu verwenden."
+
+  reload-success: "&aDonutShop wurde erfolgreich neu geladen."
+
+  category-not-found: "&cDie Kategorie &f{category} &cwurde nicht gefunden."
+
+  purchase-success: "&aErfolgreich &f{amount}x {item} &afür &f{price} &agekauft."
+
+  sell-success: "&aErfolgreich &f{amount}x {item} &afür &f{price} &averkauft."
+
+  not-enough-money: "&cDu hast nicht genug Geld."
+
+  not-enough-items: "&cDu hast nicht genügend Gegenstände."
+
+  inventory-full: "&cDein Inventar hat nicht genügend freien Platz."
+
+  purchase-failed: "&cDer Kauf ist fehlgeschlagen. Bitte versuche es erneut."
+
+  cannot-buy: "&cDieser Gegenstand kann nicht gekauft werden."
+
+  cannot-sell: "&cDieser Gegenstand kann nicht verkauft werden."
+
+  shopedit-disabled: "&cShopEdit ist derzeit deaktiviert."
+
+  shopedit-usage: "&eVerwendung: &f/shopedit <end|nether|gear|food|farm>"
+
+  shopedit-invalid-item: "&cDer ausgewählte Gegenstand ist ungültig."
+
+  shopedit-item-saved: "&aShop-Gegenstand erfolgreich gespeichert."
+
+  shopedit-item-removed: "&aShop-Gegenstand erfolgreich entfernt."
