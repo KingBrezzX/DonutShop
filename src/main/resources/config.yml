@@ -1,90 +1,120 @@
 # ============================================================
-# DonutShop
+# DonutShop - Production Configuration
 # Author: KingBrezz
+# Buy-only Vault economy shop for Paper/Bukkit.
 # ============================================================
 
-# Available languages:
-# id = Bahasa Indonesia
-# en = English
-# zh = 简体中文
-# vi = Tiếng Việt
-# de = Deutsch
-
+# id | en | zh | vi | de
 language: id
 
-# ============================================================
+# ------------------------------------------------------------
+# Global validation / safety
+# ------------------------------------------------------------
+global:
+  # Highest accepted inventory/shop slot index + 1.
+  max-slot: 54
+  # Reject malformed numeric configuration instead of silently
+  # creating unsafe shop entries.
+  strict-validation: true
+  # Write useful startup/reload diagnostics to console.
+  verbose-logging: true
+
+# ------------------------------------------------------------
 # Economy
-# ============================================================
-
+# ------------------------------------------------------------
 economy:
-  # Display name used by messages.
-  currency-name: "$"
-
-  # Number formatting.
+  provider-required: true
+  currency-symbol: "$"
   decimals: 2
+  # Never allow a transaction to use an invalid/negative total.
+  minimum-price: 0.01
 
-# ============================================================
-# Shop
-# ============================================================
-
+# ------------------------------------------------------------
+# Player shop
+# ------------------------------------------------------------
 shop:
-  # Main GUI title.
-  title: "&8DonutShop"
-
-  # GUI size. Must be a multiple of 9.
-  size: 27
-
-  # Amount purchased when clicking an item.
   default-amount: 1
-
-  # Allow shift-click to purchase a larger amount.
   shift-click-amount: 16
+  max-purchase-amount: 2304
 
-  # Categories available in the main menu.
-  categories:
-    - end
-    - nether
-    - gear
-    - food
-    - farm
+  main-menu:
+    title: "&8&lDonutShop"
+    size: 27
+    categories:
+      - end
+      - nether
+      - gear
+      - food
+      - farm
+    category-slots:
+      - 10
+      - 11
+      - 12
+      - 14
+      - 15
 
-# ============================================================
+  category-menu:
+    size: 27
+    back-slot: 0
+    back-name: "&c&lBack"
+
+  item-lore:
+    buy: "&7Price: &a${price}"
+    click: "&eLeft-click &7to buy &8• &eShift-click &7for bulk"
+
+# ------------------------------------------------------------
 # ShopEdit
-# ============================================================
-
+# ------------------------------------------------------------
 shop-edit:
   enabled: true
-
-  # Permission required for ShopEdit.
   permission: donutshop.admin.shopedit
-
-  # Automatically save changes.
+  title: "&8&lShopEdit &7• &f{category}"
+  size: 54
   auto-save: true
+  default-price: 100.00
+  allowed-slots:
+    min: 9
+    max: 44
+  selection:
+    amount: 1
+    strip-price-tags: false
+  help:
+    title: "&b&lShopEdit Help"
+    select: "&7Click an item in your inventory to select it."
+    place: "&7Left-click a valid shop slot to place it."
+    remove: "&7Right-click a shop slot to remove it."
+    price: "&7Add &f[PRICE] 250 &7to the item's name/lore."
 
-# ============================================================
-# Protection
-# ============================================================
-
+# ------------------------------------------------------------
+# GUI protection
+# ------------------------------------------------------------
 protection:
-  # Prevent players from taking shop items.
+  cancel-top-clicks: true
+  cancel-top-drags: true
   prevent-item-taking: true
-
-  # Prevent players from placing items into shop GUIs.
   prevent-item-placing: true
+  prevent-double-click-collect: true
+  prevent-hotbar-swaps: true
+  prevent-number-key-swaps: true
 
-# ============================================================
-# Sounds
-# ============================================================
-
+# ------------------------------------------------------------
+# Feedback
+# ------------------------------------------------------------
 sounds:
   enabled: true
-
   purchase:
     sound: ENTITY_PLAYER_LEVELUP
-    volume: 1.0
-    pitch: 1.0
-
+    volume: 0.8
+    pitch: 1.2
   error:
     sound: ENTITY_VILLAGER_NO
-    volume: 1.0
+    volume: 0.8
     pitch: 1.0
+
+# ------------------------------------------------------------
+# Files / persistence
+# ------------------------------------------------------------
+persistence:
+  shop-file: shop.yml
+  save-on-disable: true
+  create-missing-language-files: true

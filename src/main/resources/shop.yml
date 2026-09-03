@@ -10,7 +10,7 @@
 # Farm
 #
 # Prices are configurable.
-# Buy/Sell can be independently enabled with their prices.
+# This file is buy-only. Prices below are purchase prices.
 # ============================================================
 
 categories:
@@ -30,7 +30,6 @@ categories:
         name: "&fEnder Chest"
         lore: []
         buy: 2500
-        sell: 0
         slot: 9
 
       ender_pearl:
@@ -38,7 +37,6 @@ categories:
         name: "&fEnder Pearl"
         lore: []
         buy: 75
-        sell: 0
         slot: 10
 
       end_stone:
@@ -46,7 +44,6 @@ categories:
         name: "&fEnd Stone"
         lore: []
         buy: 8
-        sell: 0
         slot: 11
 
       dragons_breath:
@@ -54,7 +51,6 @@ categories:
         name: "&fDragon's Breath"
         lore: []
         buy: 1000
-        sell: 0
         slot: 12
 
       end_rod:
@@ -62,7 +58,6 @@ categories:
         name: "&fEnd Rod"
         lore: []
         buy: 100
-        sell: 0
         slot: 13
 
       chorus_fruit:
@@ -70,7 +65,6 @@ categories:
         name: "&fChorus Fruit"
         lore: []
         buy: 25
-        sell: 0
         slot: 14
 
       popped_chorus_fruit:
@@ -78,7 +72,6 @@ categories:
         name: "&fPopped Chorus Fruit"
         lore: []
         buy: 15
-        sell: 0
         slot: 15
 
       shulker_shell:
@@ -86,7 +79,6 @@ categories:
         name: "&fShulker Shell"
         lore: []
         buy: 350
-        sell: 0
         slot: 16
 
       shulker_box:
@@ -94,7 +86,6 @@ categories:
         name: "&fShulker Box"
         lore: []
         buy: 800
-        sell: 0
         slot: 17
 
   # ==========================================================
@@ -112,7 +103,6 @@ categories:
         name: "&fBlaze Rod"
         lore: []
         buy: 150
-        sell: 0
         slot: 9
 
       nether_wart:
@@ -120,7 +110,6 @@ categories:
         name: "&fNether Wart"
         lore: []
         buy: 25
-        sell: 0
         slot: 10
 
       glowstone_dust:
@@ -128,7 +117,6 @@ categories:
         name: "&fGlowstone Dust"
         lore: []
         buy: 15
-        sell: 0
         slot: 11
 
       magma_cream:
@@ -136,7 +124,6 @@ categories:
         name: "&fMagma Cream"
         lore: []
         buy: 25
-        sell: 0
         slot: 12
 
       ghast_tear:
@@ -144,7 +131,6 @@ categories:
         name: "&fGhast Tear"
         lore: []
         buy: 350
-        sell: 0
         slot: 13
 
       quartz:
@@ -152,7 +138,6 @@ categories:
         name: "&fNether Quartz"
         lore: []
         buy: 15
-        sell: 0
         slot: 14
 
       soul_sand:
@@ -160,7 +145,6 @@ categories:
         name: "&fSoul Sand"
         lore: []
         buy: 50
-        sell: 0
         slot: 15
 
       magma_block:
@@ -168,7 +152,6 @@ categories:
         name: "&fMagma Block"
         lore: []
         buy: 35
-        sell: 0
         slot: 16
 
       crying_obsidian:
@@ -176,7 +159,6 @@ categories:
         name: "&fCrying Obsidian"
         lore: []
         buy: 150
-        sell: 0
         slot: 17
 
   # ==========================================================
@@ -194,7 +176,6 @@ categories:
         name: "&fObsidian"
         lore: []
         buy: 100
-        sell: 0
         slot: 9
 
       end_crystal:
@@ -202,7 +183,6 @@ categories:
         name: "&fEnd Crystal"
         lore: []
         buy: 350
-        sell: 0
         slot: 10
 
       respawn_anchor:
@@ -210,7 +190,6 @@ categories:
         name: "&fRespawn Anchor"
         lore: []
         buy: 1000
-        sell: 0
         slot: 11
 
       glowstone:
@@ -218,7 +197,6 @@ categories:
         name: "&fGlowstone"
         lore: []
         buy: 100
-        sell: 0
         slot: 12
 
       totem:
@@ -226,7 +204,6 @@ categories:
         name: "&fTotem of Undying"
         lore: []
         buy: 1250
-        sell: 0
         slot: 13
 
       ender_pearl:
@@ -234,7 +211,6 @@ categories:
         name: "&fEnder Pearl"
         lore: []
         buy: 75
-        sell: 0
         slot: 14
 
       golden_apple:
@@ -242,7 +218,6 @@ categories:
         name: "&fGolden Apple"
         lore: []
         buy: 250
-        sell: 0
         slot: 15
 
       experience_bottle:
@@ -250,7 +225,6 @@ categories:
         name: "&fBottle O' Enchanting"
         lore: []
         buy: 100
-        sell: 0
         slot: 16
 
   # ==========================================================
@@ -268,7 +242,6 @@ categories:
         name: "&fPotato"
         lore: []
         buy: 75
-        sell: 0
         slot: 9
 
       sweet_berries:
@@ -276,7 +249,6 @@ categories:
         name: "&fSweet Berries"
         lore: []
         buy: 50
-        sell: 0
         slot: 10
 
       melon_slice:
@@ -284,7 +256,6 @@ categories:
         name: "&fMelon Slice"
         lore: []
         buy: 10
-        sell: 0
         slot: 11
 
       carrot:
@@ -292,7 +263,6 @@ categories:
         name: "&fCarrot"
         lore: []
         buy: 65
-        sell: 0
         slot: 12
 
       apple:
@@ -300,15 +270,13 @@ categories:
         name: "&fApple"
         lore: []
         buy: 25
-        sell: 0
         slot: 13
 
       cooked_chicken:
         material: COOKED_CHICKEN
-        name: "&fApple"
+        name: "&fCooked Chicken"
         lore: []
         buy: 30
-        sell: 0
         slot: 14
 
       steak:
@@ -316,7 +284,6 @@ categories:
         name: "&fSteak"
         lore: []
         buy: 35
-        sell: 0
         slot: 15
 
       golden_carrot:
@@ -324,7 +291,6 @@ categories:
         name: "&fGolden Carrot"
         lore: []
         buy: 50
-        sell: 0
         slot: 16
 
       golden_apple:
@@ -332,7 +298,6 @@ categories:
         name: "&fGolden Apple"
         lore: []
         buy: 250
-        sell: 0
         slot: 17
 
   # ==========================================================
@@ -350,7 +315,6 @@ categories:
         name: "&fSugar Cane"
         lore: []
         buy: 15
-        sell: 0
         slot: 9
 
       red_mushroom:
@@ -358,7 +322,6 @@ categories:
         name: "&fRed Mushroom"
         lore: []
         buy: 25
-        sell: 0
         slot: 10
 
       crimson_fungus:
@@ -366,7 +329,6 @@ categories:
         name: "&fCrimson Fungus"
         lore: []
         buy: 25
-        sell: 0
         slot: 11
 
       wheat:
@@ -374,7 +336,6 @@ categories:
         name: "&fWheat"
         lore: []
         buy: 10
-        sell: 0
         slot: 12
 
       wheat_seeds:
@@ -382,7 +343,6 @@ categories:
         name: "&fWheat Seeds"
         lore: []
         buy: 5
-        sell: 0
         slot: 13
 
       beetroot_seeds:
@@ -390,7 +350,6 @@ categories:
         name: "&fBeetroot Seeds"
         lore: []
         buy: 5
-        sell: 0
         slot: 14
 
       cocoa_beans:
@@ -398,5 +357,4 @@ categories:
         name: "&fCocoa Beans"
         lore: []
         buy: 20
-        sell: 0
         slot: 15
