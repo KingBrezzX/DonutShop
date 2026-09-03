@@ -8,20 +8,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 public final class ShopMenu {
 
-    private static final String MAIN_PREFIX = "DONUTSHOP_MAIN";
-    private static final String CATEGORY_PREFIX = "DONUTSHOP_CATEGORY";
+    private static final String MAIN_TITLE =
+            "&8DonutShop";
+
+    private static final String CATEGORY_PREFIX =
+            "DONUTSHOP_CATEGORY:";
 
     private static final Map<UUID, String> OPEN_CATEGORIES =
             new HashMap<>();
@@ -29,44 +33,43 @@ public final class ShopMenu {
     private ShopMenu() {
     }
 
-    public static void openMainMenu(Player player) {
-        DonutShop plugin =
-                (DonutShop) Bukkit.getPluginManager()
-                        .getPlugin("DonutShop");
-
-        if (plugin == null) {
-            return;
-        }
-
-        openMainMenu(plugin, player);
-    }
-
     public static void openMainMenu(
             DonutShop plugin,
             Player player
     ) {
-        int size = plugin.getConfig()
-                .getInt("shop.size", 27);
+        if (plugin == null || player == null ||
+                !player.isOnline()) {
+            return;
+        }
 
-        size = normalizeSize(size);
+        int size = normalizeSize(
+                plugin.getConfig()
+                        .getInt(
+                                "shop.size",
+                                27
+                        )
+        );
 
         String title = color(
-                plugin.getConfig().getString(
-                        "shop.title",
-                        "&8DonutShop"
-                )
+                plugin.getConfig()
+                        .getString(
+                                "shop.title",
+                                MAIN_TITLE
+                        )
         );
 
-        Inventory inventory = Bukkit.createInventory(
-                null,
-                size,
-                title
-        );
+        Inventory inventory =
+                Bukkit.createInventory(
+                        null,
+                        size,
+                        title
+                );
 
         int slot = 10;
 
         for (ShopCategory category :
-                plugin.getShopManager().getCategories()) {
+                plugin.getShopManager()
+                        .getCategories()) {
 
             if (slot >= size) {
                 break;
@@ -86,8 +89,13 @@ public final class ShopMenu {
             }
         }
 
-        player.openInventory(inventory);
-        OPEN_CATEGORIES.remove(player.getUniqueId());
+        OPEN_CATEGORIES.remove(
+                player.getUniqueId()
+        );
+
+        player.openInventory(
+                inventory
+        );
     }
 
     public static void openCategory(
@@ -95,41 +103,62 @@ public final class ShopMenu {
             Player player,
             ShopCategory category
     ) {
-        if (category == null) {
+        if (plugin == null ||
+                player == null ||
+                category == null ||
+                !player.isOnline()) {
             return;
         }
 
-        int size = 27;
+        final int size = 27;
 
-        Inventory inventory = Bukkit.createInventory(
-                null,
-                size,
-                color(category.name())
-        );
+        String title =
+                CATEGORY_PREFIX
+                        + category.id();
 
-        for (ShopItem item : category.items()) {
+        Inventory inventory =
+                Bukkit.createInventory(
+                        null,
+                        size,
+                        title
+                );
+
+        for (ShopItem item :
+                category.items()) {
+
+            if (item == null ||
+                    !item.hasValidSlot()) {
+                continue;
+            }
+
             int slot = item.slot();
 
-            if (slot < 0 || slot >= size) {
+            if (slot < 0 ||
+                    slot >= size) {
                 continue;
             }
 
             inventory.setItem(
                     slot,
-                    createShopItem(plugin, item)
+                    createShopItem(
+                            plugin,
+                            item
+                    )
             );
         }
 
         inventory.setItem(
                 18,
-                createBackItem(plugin)
+                createBackItem()
         );
-
-        player.openInventory(inventory);
 
         OPEN_CATEGORIES.put(
                 player.getUniqueId(),
                 category.id()
+        );
+
+        player.openInventory(
+                inventory
         );
     }
 
@@ -137,9 +166,12 @@ public final class ShopMenu {
             ShopCategory category
     ) {
         ItemStack item =
-                new ItemStack(category.icon());
+                new ItemStack(
+                        category.icon()
+                );
 
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta meta =
+                item.getItemMeta();
 
         if (meta == null) {
             return item;
@@ -149,9 +181,13 @@ public final class ShopMenu {
                 color(category.name())
         );
 
-        meta.setLore(List.of(
-                color("&7Click to open this category.")
-        ));
+        meta.setLore(
+                List.of(
+                        color(
+                                "&7Click to open this category."
+                        )
+                )
+        );
 
         item.setItemMeta(meta);
 
@@ -163,16 +199,21 @@ public final class ShopMenu {
             ShopItem shopItem
     ) {
         ItemStack item =
-                new ItemStack(shopItem.material());
+                new ItemStack(
+                        shopItem.material()
+                );
 
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta meta =
+                item.getItemMeta();
 
         if (meta == null) {
             return item;
         }
 
         meta.setDisplayName(
-                color(shopItem.displayName())
+                color(
+                        shopItem.displayName()
+                )
         );
 
         List<String> lore =
@@ -182,31 +223,46 @@ public final class ShopMenu {
 
         if (shopItem.canBuy()) {
             lore.add(
-                    color("&aBuy: &f"
-                            + formatPrice(
-                            plugin,
-                            shopItem.buyPrice()
-                    ))
+                    color(
+                            "&aBuy: &f"
+                                    + formatPrice(
+                                    plugin,
+                                    shopItem.buyPrice()
+                            )
+                    )
             );
         }
 
         if (shopItem.canSell()) {
             lore.add(
-                    color("&cSell: &f"
-                            + formatPrice(
-                            plugin,
-                            shopItem.sellPrice()
-                    ))
+                    color(
+                            "&cSell: &f"
+                                    + formatPrice(
+                                    plugin,
+                                    shopItem.sellPrice()
+                            )
+                    )
             );
         }
 
         lore.add("");
-        lore.add(
-                color("&7Left Click &f→ Buy")
-        );
-        lore.add(
-                color("&7Right Click &f→ Sell")
-        );
+
+        if (shopItem.canBuy()) {
+            lore.add(
+                    color(
+                            "&7Left Click &f→ Buy"
+                    )
+            );
+        }
+
+        if (shopItem.canSell()) {
+            lore.add(
+                    color(
+                            "&7Right Click &f→ Sell"
+                    )
+            );
+
+        }
 
         meta.setLore(lore);
 
@@ -215,15 +271,14 @@ public final class ShopMenu {
         return item;
     }
 
-    private static ItemStack createBackItem(
-            DonutShop plugin
-    ) {
+    private static ItemStack createBackItem() {
         ItemStack item =
                 new ItemStack(
                         Material.RED_STAINED_GLASS_PANE
                 );
 
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta meta =
+                item.getItemMeta();
 
         if (meta == null) {
             return item;
@@ -233,9 +288,13 @@ public final class ShopMenu {
                 color("&cBack")
         );
 
-        meta.setLore(List.of(
-                color("&fClick to return")
-        ));
+        meta.setLore(
+                List.of(
+                        color(
+                                "&fClick to return"
+                        )
+                )
+        );
 
         item.setItemMeta(meta);
 
@@ -248,61 +307,84 @@ public final class ShopMenu {
             int slot,
             ClickType click
     ) {
+        if (plugin == null ||
+                player == null ||
+                click == null) {
+            return;
+        }
+
         String categoryId =
                 OPEN_CATEGORIES.get(
                         player.getUniqueId()
                 );
 
+        /*
+         * Main category menu.
+         */
         if (categoryId == null) {
             handleMainMenuClick(
                     plugin,
                     player,
                     slot
             );
-
             return;
         }
 
         ShopCategory category =
                 plugin.getShopManager()
-                        .getCategory(categoryId);
+                        .getCategory(
+                                categoryId
+                        );
 
         if (category == null) {
-            openMainMenu(plugin, player);
+            openMainMenu(
+                    plugin,
+                    player
+            );
             return;
         }
 
+        /*
+         * Back button.
+         */
         if (slot == 18) {
-            openMainMenu(plugin, player);
+            openMainMenu(
+                    plugin,
+                    player
+            );
             return;
         }
 
         ShopItem item =
-                category.getItemBySlot(slot);
+                category.getItemBySlot(
+                        slot
+                );
 
         if (item == null) {
             return;
         }
 
         int amount =
-                click.isShiftClick()
-                        ? plugin.getConfig().getInt(
-                        "shop.shift-click-amount",
-                        16
-                )
-                        : plugin.getConfig().getInt(
-                        "shop.default-amount",
-                        1
+                getTransactionAmount(
+                        plugin,
+                        click
                 );
 
+        if (amount <= 0) {
+            return;
+        }
+
         if (click.isLeftClick()) {
+
             buy(
                     plugin,
                     player,
                     item,
                     amount
             );
+
         } else if (click.isRightClick()) {
+
             sell(
                     plugin,
                     player,
@@ -319,10 +401,16 @@ public final class ShopMenu {
     ) {
         int index;
 
-        if (slot >= 10 && slot <= 16) {
+        if (slot >= 10 &&
+                slot <= 16) {
+
             index = slot - 10;
-        } else if (slot >= 19 && slot <= 25) {
+
+        } else if (slot >= 19 &&
+                slot <= 25) {
+
             index = slot - 19 + 7;
+
         } else {
             return;
         }
@@ -333,7 +421,8 @@ public final class ShopMenu {
                                 .getCategories()
                 );
 
-        if (index < 0 || index >= categories.size()) {
+        if (index < 0 ||
+                index >= categories.size()) {
             return;
         }
 
@@ -344,6 +433,40 @@ public final class ShopMenu {
         );
     }
 
+    private static int getTransactionAmount(
+            DonutShop plugin,
+            ClickType click
+    ) {
+        int configured;
+
+        if (click.isShiftClick()) {
+
+            configured =
+                    plugin.getConfig()
+                            .getInt(
+                                    "shop.shift-click-amount",
+                                    16
+                            );
+
+        } else {
+
+            configured =
+                    plugin.getConfig()
+                            .getInt(
+                                    "shop.default-amount",
+                                    1
+                            );
+        }
+
+        return Math.max(
+                1,
+                Math.min(
+                        configured,
+                        2304
+                )
+        );
+    }
+
     private static void buy(
             DonutShop plugin,
             Player player,
@@ -351,21 +474,47 @@ public final class ShopMenu {
             int amount
     ) {
         if (!item.canBuy()) {
+
             plugin.getLanguageManager()
                     .send(
                             player,
                             "messages.cannot-buy"
                     );
 
-            playErrorSound(plugin, player);
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
             return;
         }
 
         double total =
-                item.buyPrice() * amount;
+                item.buyPrice()
+                        * amount;
+
+        if (!Double.isFinite(total) ||
+                total <= 0) {
+
+            plugin.getLanguageManager()
+                    .send(
+                            player,
+                            "messages.purchase-failed"
+                    );
+
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
+            return;
+        }
 
         if (!plugin.getEconomy()
-                .has(player, total)) {
+                .has(
+                        player,
+                        total
+                )) {
 
             plugin.getLanguageManager()
                     .send(
@@ -373,7 +522,11 @@ public final class ShopMenu {
                             "messages.not-enough-money"
                     );
 
-            playErrorSound(plugin, player);
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
             return;
         }
 
@@ -382,18 +535,27 @@ public final class ShopMenu {
                 item.material(),
                 amount
         )) {
+
             plugin.getLanguageManager()
                     .send(
                             player,
                             "messages.inventory-full"
                     );
 
-            playErrorSound(plugin, player);
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
             return;
         }
 
         if (!plugin.getShopManager()
-                .buy(player, item, amount)) {
+                .buy(
+                        player,
+                        item,
+                        amount
+                )) {
 
             plugin.getLanguageManager()
                     .send(
@@ -401,7 +563,11 @@ public final class ShopMenu {
                             "messages.purchase-failed"
                     );
 
-            playErrorSound(plugin, player);
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
             return;
         }
 
@@ -411,9 +577,13 @@ public final class ShopMenu {
                         "messages.purchase-success",
                         Map.of(
                                 "item",
-                                color(item.displayName()),
+                                color(
+                                        item.displayName()
+                                ),
                                 "amount",
-                                String.valueOf(amount),
+                                String.valueOf(
+                                        amount
+                                ),
                                 "price",
                                 formatPrice(
                                         plugin,
@@ -422,7 +592,10 @@ public final class ShopMenu {
                         )
                 );
 
-        playPurchaseSound(plugin, player);
+        playPurchaseSound(
+                plugin,
+                player
+        );
     }
 
     private static void sell(
@@ -432,18 +605,48 @@ public final class ShopMenu {
             int amount
     ) {
         if (!item.canSell()) {
+
             plugin.getLanguageManager()
                     .send(
                             player,
                             "messages.cannot-sell"
                     );
 
-            playErrorSound(plugin, player);
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
+            return;
+        }
+
+        double total =
+                item.sellPrice()
+                        * amount;
+
+        if (!Double.isFinite(total) ||
+                total <= 0) {
+
+            plugin.getLanguageManager()
+                    .send(
+                            player,
+                            "messages.purchase-failed"
+                    );
+
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
             return;
         }
 
         if (!plugin.getShopManager()
-                .sell(player, item, amount)) {
+                .sell(
+                        player,
+                        item,
+                        amount
+                )) {
 
             plugin.getLanguageManager()
                     .send(
@@ -451,12 +654,13 @@ public final class ShopMenu {
                             "messages.not-enough-items"
                     );
 
-            playErrorSound(plugin, player);
+            playErrorSound(
+                    plugin,
+                    player
+            );
+
             return;
         }
-
-        double total =
-                item.sellPrice() * amount;
 
         plugin.getLanguageManager()
                 .send(
@@ -464,9 +668,13 @@ public final class ShopMenu {
                         "messages.sell-success",
                         Map.of(
                                 "item",
-                                color(item.displayName()),
+                                color(
+                                        item.displayName()
+                                ),
                                 "amount",
-                                String.valueOf(amount),
+                                String.valueOf(
+                                        amount
+                                ),
                                 "price",
                                 formatPrice(
                                         plugin,
@@ -475,7 +683,10 @@ public final class ShopMenu {
                         )
                 );
 
-        playPurchaseSound(plugin, player);
+        playPurchaseSound(
+                plugin,
+                player
+        );
     }
 
     private static boolean hasInventorySpace(
@@ -483,23 +694,37 @@ public final class ShopMenu {
             Material material,
             int amount
     ) {
+        if (player == null ||
+                material == null ||
+                amount <= 0) {
+            return false;
+        }
+
         int remaining = amount;
+        int maxStack =
+                Math.max(
+                        1,
+                        material.getMaxStackSize()
+                );
 
         for (ItemStack stack :
-                player.getInventory().getStorageContents()) {
+                player.getInventory()
+                        .getStorageContents()) {
 
             if (stack == null ||
                     stack.getType() == Material.AIR) {
 
-                remaining -= material.getMaxStackSize();
+                remaining -= maxStack;
 
-            } else if (stack.getType() == material &&
-                    stack.getAmount()
-                            < material.getMaxStackSize()) {
+            } else if (stack.getType() ==
+                    material) {
 
                 remaining -=
-                        material.getMaxStackSize()
-                                - stack.getAmount();
+                        Math.max(
+                                0,
+                                maxStack
+                                        - stack.getAmount()
+                        );
             }
 
             if (remaining <= 0) {
@@ -515,7 +740,10 @@ public final class ShopMenu {
             Player player
     ) {
         if (!plugin.getConfig()
-                .getBoolean("sounds.enabled", true)) {
+                .getBoolean(
+                        "sounds.enabled",
+                        true
+                )) {
             return;
         }
 
@@ -531,7 +759,10 @@ public final class ShopMenu {
             Player player
     ) {
         if (!plugin.getConfig()
-                .getBoolean("sounds.enabled", true)) {
+                .getBoolean(
+                        "sounds.enabled",
+                        true
+                )) {
             return;
         }
 
@@ -553,14 +784,17 @@ public final class ShopMenu {
                                 path + ".sound"
                         );
 
-        if (soundName == null) {
+        if (soundName == null ||
+                soundName.isBlank()) {
             return;
         }
 
         try {
             Sound sound =
                     Sound.valueOf(
-                            soundName.toUpperCase()
+                            soundName.toUpperCase(
+                                    Locale.ROOT
+                            )
                     );
 
             float volume =
@@ -584,9 +818,13 @@ public final class ShopMenu {
                     pitch
             );
 
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException exception) {
+
             plugin.getLogger().warning(
-                    "Invalid sound: " + soundName
+                    "Invalid sound '"
+                            + soundName
+                            + "' in "
+                            + path
             );
         }
     }
@@ -596,20 +834,29 @@ public final class ShopMenu {
             double price
     ) {
         int decimals =
-                plugin.getConfig()
-                        .getInt(
-                                "economy.decimals",
-                                2
-                        );
+                Math.max(
+                        0,
+                        Math.min(
+                                6,
+                                plugin.getConfig()
+                                        .getInt(
+                                                "economy.decimals",
+                                                2
+                                        )
+                        )
+                );
 
         StringBuilder pattern =
                 new StringBuilder("0");
 
         if (decimals > 0) {
+
             pattern.append(".");
 
             pattern.append(
-                    "0".repeat(decimals)
+                    "0".repeat(
+                            decimals
+                    )
             );
         }
 
@@ -625,6 +872,10 @@ public final class ShopMenu {
                                 "$"
                         );
 
+        if (currency == null) {
+            currency = "$";
+        }
+
         return currency
                 + format.format(price);
     }
@@ -636,42 +887,48 @@ public final class ShopMenu {
             return false;
         }
 
-        String title = view.getTitle();
+        String title =
+                view.getTitle();
 
-        return title != null &&
-                (
-                        title.contains("DonutShop") ||
-                        OPEN_CATEGORIES.containsValue(
-                                findCategoryId(title)
-                        )
-                );
-    }
-
-    private static String findCategoryId(
-            String title
-    ) {
-        for (String id :
-                OPEN_CATEGORIES.values()) {
-
-            if (id.equalsIgnoreCase(
-                    ChatColor.stripColor(title)
-            )) {
-                return id;
-            }
+        if (title == null) {
+            return false;
         }
 
-        return "";
+        String stripped =
+                ChatColor.stripColor(
+                        title
+                );
+
+        if (stripped == null) {
+            return false;
+        }
+
+        if (stripped.equalsIgnoreCase(
+                "DonutShop"
+        )) {
+            return true;
+        }
+
+        return stripped.startsWith(
+                CATEGORY_PREFIX
+        );
     }
 
     public static void removeSession(
             Player player
     ) {
+        if (player == null) {
+            return;
+        }
+
         OPEN_CATEGORIES.remove(
                 player.getUniqueId()
         );
     }
 
-    private static int normalizeSize(int size) {
+    private static int normalizeSize(
+            int size
+    ) {
         if (size < 9) {
             return 9;
         }
@@ -680,10 +937,13 @@ public final class ShopMenu {
             return 54;
         }
 
-        return size - (size % 9);
+        return size -
+                (size % 9);
     }
 
-    private static String color(String text) {
+    private static String color(
+            String text
+    ) {
         if (text == null) {
             return "";
         }
@@ -693,4 +953,4 @@ public final class ShopMenu {
                 text
         );
     }
-  }
+            }
