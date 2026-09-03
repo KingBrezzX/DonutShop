@@ -24,6 +24,10 @@ public final class ShopEditCommand implements CommandExecutor, TabCompleter {
             plugin.getLanguageManager().send(sender, "messages.player-only");
             return true;
         }
+        if (!plugin.isReady()) {
+            plugin.getLanguageManager().send(player, "messages.economy-unavailable");
+            return true;
+        }
         if (!player.hasPermission("donutshop.admin.shopedit")) {
             plugin.getLanguageManager().send(player, "messages.no-permission");
             return true;
@@ -51,6 +55,7 @@ public final class ShopEditCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length != 1) return List.of();
         String query = args[0].toLowerCase(Locale.ROOT);
+        if (!plugin.isReady()) return List.of();
         return plugin.getShopManager().getCategories().stream()
                 .map(ShopCategory::id)
                 .filter(id -> id.startsWith(query))

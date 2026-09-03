@@ -27,7 +27,7 @@ public final class ShopManager {
     public record PurchaseResult(boolean success, Failure reason, double total) {}
 
     private final DonutShop plugin;
-    private final Economy economy;
+    private Economy economy;
     private final Map<String, ShopCategory> categories = new LinkedHashMap<>();
 
     private File shopFile;
@@ -173,6 +173,11 @@ public final class ShopManager {
         return size - (size % 9);
     }
 
+    /** Updates the active Vault provider without replacing shop data. */
+    public void setEconomy(Economy economy) {
+        this.economy = economy;
+    }
+
     public void save() {
         if (shopConfig == null || shopFile == null) return;
         try {
@@ -221,7 +226,12 @@ public final class ShopManager {
             return new PurchaseResult(false, Failure.INVALID, 0);
         }
 
-        if (!economy.isEnabled() || !economy.has(player, total)) {
+        Economy activeEconomy = economy;
+        if (activeEconomy == null || !activeEconomy.isEnabled()) {
+            return new PurchaseResult(false, Failure.ECONOMY, total);
+        }
+
+        if (!activeEconomy.has(player, total)) {
             return new PurchaseResult(false, Failure.BALANCE, total);
         }
 
@@ -238,7 +248,7 @@ public final class ShopManager {
 
         EconomyResponse response;
         try {
-            response = economy.withdrawPlayer(player, total);
+            response = activeEconomy.withdrawPlayer(player, total);
         } catch (RuntimeException exception) {
             inventory.setStorageContents(before);
             plugin.getLogger().log(Level.SEVERE, "Economy provider threw during purchase for " + player.getName(), exception);

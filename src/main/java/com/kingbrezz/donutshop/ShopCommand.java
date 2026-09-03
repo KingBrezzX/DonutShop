@@ -22,6 +22,10 @@ public final class ShopCommand implements CommandExecutor, TabCompleter {
             plugin.getLanguageManager().send(sender, "messages.player-only");
             return true;
         }
+        if (!plugin.isReady()) {
+            plugin.getLanguageManager().send(player, "messages.economy-unavailable");
+            return true;
+        }
         if (!player.hasPermission("donutshop.use")) {
             plugin.getLanguageManager().send(player, "messages.no-permission");
             return true;
