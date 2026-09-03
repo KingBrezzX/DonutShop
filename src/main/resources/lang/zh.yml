@@ -35,6 +35,8 @@ messages:
 
   shopedit-invalid-item: "&c选择的物品无效。"
 
+  shopedit-item-selected: "&a物品已选择。现在点击商店槽位来放置它。"
+
   shopedit-item-saved: "&a商店物品保存成功。"
 
   shopedit-item-removed: "&a商店物品删除成功。"
