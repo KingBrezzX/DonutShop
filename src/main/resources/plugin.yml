@@ -1,0 +1,52 @@
+name: DonutShop
+version: ${version}
+main: com.kingbrezz.donutshop.DonutShop
+api-version: '1.21'
+
+author: KingBrezz
+description: Professional configurable GUI shop with Vault economy support.
+
+softdepend:
+  - Vault
+
+commands:
+
+  shop:
+    description: Open the DonutShop
+    usage: /shop
+    aliases:
+      - store
+      - buy
+    permission: donutshop.use
+
+  shopedit:
+    description: Edit DonutShop menus
+    usage: /shopedit <end|nether|gear|food|farm>
+    aliases:
+      - editshop
+    permission: donutshop.admin.shopedit
+
+  donutshop:
+    description: DonutShop administration command
+    usage: /donutshop <reload|version>
+    aliases:
+      - dshop
+    permission: donutshop.admin
+
+permissions:
+
+  donutshop.use:
+    description: Allows players to use DonutShop.
+    default: true
+
+  donutshop.admin:
+    description: Allows DonutShop administration.
+    default: op
+
+  donutshop.admin.reload:
+    description: Allows reloading DonutShop configuration.
+    default: op
+
+  donutshop.admin.shopedit:
+    description: Allows editing shop menus.
+    default: op
