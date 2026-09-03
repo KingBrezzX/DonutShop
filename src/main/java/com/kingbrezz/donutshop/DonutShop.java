@@ -62,7 +62,7 @@ public final class DonutShop extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onEconomyServiceRegister(ServiceRegisterEvent event) {
-        if (event.getProvider() != Economy.class) return;
+        if (event.getProvider().getService() != Economy.class) return;
 
         // Services may be registered while the server is still processing its
         // startup queue. Move initialization to the next tick for a stable
@@ -72,7 +72,7 @@ public final class DonutShop extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onEconomyServiceUnregister(ServiceUnregisterEvent event) {
-        if (event.getProvider() != Economy.class) return;
+        if (event.getProvider().getService() != Economy.class) return;
 
         RegisteredServiceProvider<Economy> current = getServer().getServicesManager()
                 .getRegistration(Economy.class);
