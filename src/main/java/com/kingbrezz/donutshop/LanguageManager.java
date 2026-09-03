@@ -1,128 +1,28 @@
 package com.kingbrezz.donutshop;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public final class LanguageManager {
-
-    private final DonutShop plugin;
-    private final Map<String, FileConfiguration> languages = new HashMap<>();
-
-    public LanguageManager(DonutShop plugin) {
-        this.plugin = plugin;
+    public static final List<String> SUPPORTED=List.of("id","en","zh","vi","de");
+    private final DonutShop plugin; private final Map<String,FileConfiguration> languages=new LinkedHashMap<>();
+    public LanguageManager(DonutShop plugin){this.plugin=plugin;}
+    public void load(){
+        languages.clear(); File dir=new File(plugin.getDataFolder(),"lang"); if(!dir.exists() && !dir.mkdirs()) plugin.getLogger().warning("Could not create lang directory.");
+        for(String id:SUPPORTED){File f=new File(dir,id+".yml"); if(!f.exists()) plugin.saveResource("lang/"+id+".yml",false); languages.put(id,YamlConfiguration.loadConfiguration(f));}
+        FileConfiguration base=languages.get("en"); for(String id:SUPPORTED){ for(String key:base.getKeys(true)){ if(base.isString(key) && !languages.get(id).isString(key)) plugin.getLogger().warning("Missing language key: "+id+" -> "+key); } }
     }
-
-    public void load() {
-        languages.clear();
-
-        File directory = new File(plugin.getDataFolder(), "lang");
-
-        if (!directory.exists() && !directory.mkdirs()) {
-            plugin.getLogger().warning("Could not create language directory.");
-        }
-
-        String[] supported = {
-                "id",
-                "en",
-                "zh",
-                "vi",
-                "de"
-        };
-
-        for (String language : supported) {
-            saveLanguageIfMissing(language);
-
-            File file = new File(directory, language + ".yml");
-
-            if (file.exists()) {
-                languages.put(
-                        language,
-                        YamlConfiguration.loadConfiguration(file)
-                );
-            }
-        }
+    public String get(String path){return get(path,Map.of());}
+    public String get(String path, Map<String,String> placeholders){
+        String id=plugin.getConfig().getString("language","id").toLowerCase(Locale.ROOT); FileConfiguration cfg=languages.getOrDefault(id,languages.get("id"));
+        String value=cfg==null?path:cfg.getString(path,path); for(var e:placeholders.entrySet()) value=value.replace("{" + e.getKey() + "}",e.getValue());
+        return ChatColor.translateAlternateColorCodes('&',value);
     }
-
-    private void saveLanguageIfMissing(String language) {
-        File file = new File(
-                plugin.getDataFolder(),
-                "lang/" + language + ".yml"
-        );
-
-        if (file.exists()) {
-            return;
-        }
-
-        plugin.saveResource(
-                "lang/" + language + ".yml",
-                false
-        );
-    }
-
-    public String get(String path) {
-        String language = plugin.getConfig()
-                .getString("language", "id")
-                .toLowerCase();
-
-        FileConfiguration configuration =
-                languages.getOrDefault(
-                        language,
-                        languages.get("id")
-                );
-
-        if (configuration == null) {
-            return path;
-        }
-
-        return color(
-                configuration.getString(path, path)
-        );
-    }
-
-    public String get(String path, Map<String, String> placeholders) {
-        String message = get(path);
-
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            message = message.replace(
-                    "{" + entry.getKey() + "}",
-                    entry.getValue()
-            );
-        }
-
-        return message;
-    }
-
-    public String get(String path, String key, String value) {
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put(key, value);
-
-        return get(path, placeholders);
-    }
-
-    public void send(org.bukkit.command.CommandSender sender, String path) {
-        sender.sendMessage(get(path));
-    }
-
-    private String color(String text) {
-        if (text == null) {
-            return "";
-        }
-
-        return ChatColor.translateAlternateColorCodes('&', text);
-    }
-
-    public Map<String, FileConfiguration> getLanguages() {
-        return Collections.unmodifiableMap(languages);
-    }
-
-    public boolean isSupported(String language) {
-        return languages.containsKey(language.toLowerCase());
-    }
+    public void send(CommandSender sender,String path){sender.sendMessage(get(path));}
+    public void send(CommandSender sender,String path,Map<String,String> placeholders){sender.sendMessage(get(path,placeholders));}
+    public boolean isSupported(String id){return id!=null && SUPPORTED.contains(id.toLowerCase(Locale.ROOT));}
 }

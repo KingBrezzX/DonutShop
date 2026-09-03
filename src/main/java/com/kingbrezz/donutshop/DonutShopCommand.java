@@ -1,174 +1,23 @@
 package com.kingbrezz.donutshop;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
+import java.util.*;
 
-import java.util.List;
-import java.util.Locale;
-
-public final class DonutShopCommand
-        implements CommandExecutor, TabCompleter {
-
+public final class DonutShopCommand implements CommandExecutor, TabCompleter {
     private final DonutShop plugin;
-
-    public DonutShopCommand(DonutShop plugin) {
-        this.plugin = plugin;
+    public DonutShopCommand(DonutShop plugin){this.plugin=plugin;}
+    @Override public boolean onCommand(CommandSender s, Command c, String label, String[] a){
+        if(!s.hasPermission("donutshop.admin")){ plugin.getLanguageManager().send(s,"messages.no-permission"); return true; }
+        if(a.length==0){ help(s); return true; }
+        switch(a[0].toLowerCase(Locale.ROOT)){
+            case "reload" -> { if(!s.hasPermission("donutshop.admin.reload")){plugin.getLanguageManager().send(s,"messages.no-permission");return true;} plugin.reloadPlugin(); plugin.getLanguageManager().send(s,"messages.reload-success"); }
+            case "version" -> { plugin.getLanguageManager().send(s,"messages.version", Map.of("version",plugin.getPluginMeta().getVersion())); }
+            default -> help(s);
+        } return true;
     }
-
-    @Override
-    public boolean onCommand(
-            CommandSender sender,
-            Command command,
-            String label,
-            String[] args
-    ) {
-        if (!sender.hasPermission("donutshop.admin")) {
-            plugin.getLanguageManager()
-                    .send(sender, "messages.no-permission");
-            return true;
-        }
-
-        if (args.length == 0) {
-            sendHelp(sender);
-            return true;
-        }
-
-        String subCommand =
-                args[0].toLowerCase(Locale.ROOT);
-
-        switch (subCommand) {
-
-            case "reload" -> {
-
-                if (!sender.hasPermission(
-                        "donutshop.admin.reload"
-                )) {
-                    plugin.getLanguageManager()
-                            .send(
-                                    sender,
-                                    "messages.no-permission"
-                            );
-                    return true;
-                }
-
-                plugin.reloadPlugin();
-
-                plugin.getLanguageManager()
-                        .send(
-                                sender,
-                                "messages.reload-success"
-                        );
-            }
-
-            case "version" -> {
-
-                String version =
-                        plugin.getPluginMeta()
-                                .getVersion();
-
-                sender.sendMessage(
-                        color(
-                                "&8&m--------------------------"
-                        )
-                );
-
-                sender.sendMessage(
-                        color(
-                                "&b&lDonutShop"
-                        )
-                );
-
-                sender.sendMessage(
-                        color(
-                                "&7Author: &fKingBrezz"
-                        )
-                );
-
-                sender.sendMessage(
-                        color(
-                                "&7Version: &f" + version
-                        )
-                );
-
-                sender.sendMessage(
-                        color(
-                                "&7Platform: &fPaper/Bukkit"
-                        )
-                );
-
-                sender.sendMessage(
-                        color(
-                                "&8&m--------------------------"
-                        )
-                );
-            }
-
-            default -> sendHelp(sender);
-        }
-
-        return true;
-    }
-
-    private void sendHelp(
-            CommandSender sender
-    ) {
-        sender.sendMessage(
-                color("&8&m--------------------------")
-        );
-
-        sender.sendMessage(
-                color("&b&lDonutShop &7Administration")
-        );
-
-        sender.sendMessage(
-                color("&f/donutshop reload &7- Reload configuration")
-        );
-
-        sender.sendMessage(
-                color("&f/donutshop version &7- Show plugin version")
-        );
-
-        sender.sendMessage(
-                color("&f/shopedit <category> &7- Edit a shop")
-        );
-
-        sender.sendMessage(
-                color("&8&m--------------------------")
-        );
-    }
-
-    @Override
-    public List<String> onTabComplete(
-            CommandSender sender,
-            Command command,
-            String alias,
-            String[] args
-    ) {
-        if (args.length != 1) {
-            return List.of();
-        }
-
-        String input =
-                args[0].toLowerCase(Locale.ROOT);
-
-        return List.of(
-                        "reload",
-                        "version"
-                )
-                .stream()
-                .filter(value ->
-                        value.startsWith(input)
-                )
-                .toList();
-    }
-
-    private String color(String text) {
-        return ChatColor.translateAlternateColorCodes(
-                '&',
-                text
-        );
+    private void help(CommandSender s){ plugin.getLanguageManager().send(s,"messages.admin-help"); }
+    @Override public List<String> onTabComplete(CommandSender s, Command c, String a, String[] args){
+        if(args.length!=1) return List.of(); String q=args[0].toLowerCase(Locale.ROOT);
+        return List.of("reload","version").stream().filter(x->x.startsWith(q)).toList();
     }
 }
