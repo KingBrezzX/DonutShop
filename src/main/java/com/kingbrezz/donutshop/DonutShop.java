@@ -19,31 +19,70 @@ public final class DonutShop extends JavaPlugin {
 
         if (!setupEconomy()) {
             getLogger().severe("Vault economy was not found.");
-            getLogger().severe("DonutShop requires Vault and an economy provider.");
-            getServer().getPluginManager().disablePlugin(this);
+            getLogger().severe(
+                    "DonutShop requires Vault and a compatible economy provider."
+            );
+
+            getServer().getPluginManager()
+                    .disablePlugin(this);
             return;
         }
 
-        shopManager = new ShopManager(this, economy);
-        shopManager.load();
-
-        ShopCommand shopCommand = new ShopCommand(this);
-
-        getCommand("shop").setExecutor(shopCommand);
-        getCommand("shop").setTabCompleter(shopCommand);
-
-        getCommand("shopedit").setExecutor(new ShopEditCommand(this));
-        getCommand("shopedit").setTabCompleter(new ShopEditCommand(this));
-
-        getCommand("donutshop").setExecutor(new DonutShopCommand(this));
-        getCommand("donutshop").setTabCompleter(new DonutShopCommand(this));
-
-        getServer().getPluginManager().registerEvents(
-                new ShopListener(this),
-                this
+        shopManager = new ShopManager(
+                this,
+                economy
         );
 
-        getLogger().info("DonutShop enabled successfully.");
+        shopManager.load();
+
+        ShopCommand shopCommand =
+                new ShopCommand(this);
+
+        ShopEditCommand shopEditCommand =
+                new ShopEditCommand(this);
+
+        DonutShopCommand adminCommand =
+                new DonutShopCommand(this);
+
+        if (getCommand("shop") != null) {
+            getCommand("shop")
+                    .setExecutor(shopCommand);
+
+            getCommand("shop")
+                    .setTabCompleter(shopCommand);
+        }
+
+        if (getCommand("shopedit") != null) {
+            getCommand("shopedit")
+                    .setExecutor(shopEditCommand);
+
+            getCommand("shopedit")
+                    .setTabCompleter(shopEditCommand);
+        }
+
+        if (getCommand("donutshop") != null) {
+            getCommand("donutshop")
+                    .setExecutor(adminCommand);
+
+            getCommand("donutshop")
+                    .setTabCompleter(adminCommand);
+        }
+
+        getServer().getPluginManager()
+                .registerEvents(
+                        new ShopListener(this),
+                        this
+                );
+
+        getServer().getPluginManager()
+                .registerEvents(
+                        new ShopEditListener(this),
+                        this
+                );
+
+        getLogger().info(
+                "DonutShop enabled successfully."
+        );
     }
 
     @Override
@@ -52,22 +91,29 @@ public final class DonutShop extends JavaPlugin {
             shopManager.save();
         }
 
-        getLogger().info("DonutShop disabled.");
+        getLogger().info(
+                "DonutShop disabled."
+        );
     }
 
     private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+        if (getServer().getPluginManager()
+                .getPlugin("Vault") == null) {
             return false;
         }
 
         RegisteredServiceProvider<Economy> provider =
-                getServer().getServicesManager().getRegistration(Economy.class);
+                getServer().getServicesManager()
+                        .getRegistration(
+                                Economy.class
+                        );
 
         if (provider == null) {
             return false;
         }
 
         economy = provider.getProvider();
+
         return economy != null;
     }
 
@@ -85,7 +131,13 @@ public final class DonutShop extends JavaPlugin {
 
     public void reloadPlugin() {
         reloadConfig();
-        languageManager.load();
-        shopManager.load();
+
+        if (languageManager != null) {
+            languageManager.load();
+        }
+
+        if (shopManager != null) {
+            shopManager.load();
+        }
     }
 }
