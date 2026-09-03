@@ -9,10 +9,12 @@ description = 'Professional buy-only GUI shop powered by Vault Economy.'
 
 repositories {
     mavenCentral()
+
     maven {
         name = 'papermc'
         url = uri('https://repo.papermc.io/repository/maven-public/')
     }
+
     maven {
         name = 'jitpack'
         url = uri('https://jitpack.io')
@@ -20,12 +22,15 @@ repositories {
 }
 
 dependencies {
-    // Paper 26.2 retired the old 26.2-R0.1-SNAPSHOT coordinate.
+    // Paper 26.2 is built for Java/JVM 25.
     compileOnly('io.papermc.paper:paper-api:26.2.build.121-stable')
+
+    // Vault API is compile-only because Vault is provided by the server.
     compileOnly('com.github.MilkBowl:VaultAPI:1.7.1')
 }
 
 java {
+    // JDK 25 is required to compile against Paper 26.2.
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
@@ -33,12 +38,36 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+
+    // IMPORTANT:
+    // The compiler runs on JDK 25, but the generated plugin
+    // bytecode targets Java 21.
     options.release = 21
+
     options.compilerArgs += ['-Xlint:all']
+}
+
+/*
+ * Paper 26.2 targets JVM 25.
+ *
+ * Without this attribute, Gradle sees options.release = 21
+ * and incorrectly requests a JVM-21-compatible Paper variant.
+ *
+ * This forces dependency resolution to select the JVM-25
+ * Paper API while the actual DonutShop bytecode remains Java 21.
+ */
+configurations.named('compileClasspath') {
+    attributes {
+        attribute(
+            org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+            25
+        )
+    }
 }
 
 processResources {
     filteringCharset = 'UTF-8'
+
     filesMatching('plugin.yml') {
         expand(version: project.version)
     }
@@ -47,7 +76,9 @@ processResources {
 jar {
     archiveBaseName = 'DonutShop'
     archiveVersion = project.version
+
     duplicatesStrategy = DuplicatesStrategy.FAIL
+
     manifest {
         attributes(
             'Implementation-Title': 'DonutShop',
@@ -57,7 +88,7 @@ jar {
     }
 }
 
-// Keep the normal Gradle lifecycle explicit for CI/release builds.
+// Keep the standard Gradle lifecycle explicit for CI/release builds.
 tasks.named('build') {
     dependsOn(tasks.named('check'))
 }
