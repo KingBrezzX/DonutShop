@@ -28,11 +28,18 @@ public final class ShopCategory {
             return;
         }
 
-        items.removeIf(existing ->
-                existing.id().equalsIgnoreCase(item.id())
-        );
-
+        removeItem(item.id());
         items.add(item);
+    }
+
+    public void removeItem(String id) {
+        if (id == null) {
+            return;
+        }
+
+        items.removeIf(item ->
+                item.id().equalsIgnoreCase(id)
+        );
     }
 
     public ShopItem getItem(String id) {
