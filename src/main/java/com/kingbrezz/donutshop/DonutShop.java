@@ -30,6 +30,7 @@ public final class DonutShop extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        migrateMainMenuConfig();
 
         languageManager = new LanguageManager(this);
         languageManager.load();
@@ -48,6 +49,26 @@ public final class DonutShop extends JavaPlugin implements Listener {
         }
     }
 
+    private void migrateMainMenuConfig() {
+        java.util.List<String> expectedCategories = java.util.List.of("end", "nether", "gear", "food", "farm");
+        java.util.List<Integer> expectedSlots = java.util.List.of(11, 12, 13, 14, 15);
+        java.util.List<String> categories = getConfig().getStringList("shop.main-menu.categories");
+        java.util.List<Integer> slots = getConfig().getIntegerList("shop.main-menu.category-slots");
+        if (categories.equals(expectedCategories) && slots.equals(expectedSlots)) return;
+
+        java.io.File configFile = new java.io.File(getDataFolder(), "config.yml");
+        if (configFile.exists()) {
+            java.io.File backup = new java.io.File(getDataFolder(), "config.yml.bak");
+            if (!backup.exists() && !configFile.renameTo(backup)) {
+                getLogger().warning("Could not create config.yml backup before main-menu migration.");
+            }
+        }
+        getConfig().set("shop.main-menu.categories", expectedCategories);
+        getConfig().set("shop.main-menu.category-slots", expectedSlots);
+        saveConfig();
+        getLogger().info("Migrated main shop menu to End, Nether, Gear, Food, Farm.");
+    }
+
     @Override
     public void onDisable() {
         if (economyRetryTask != null) {
@@ -62,7 +83,7 @@ public final class DonutShop extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onEconomyServiceRegister(ServiceRegisterEvent event) {
-        if (event.getProvider() != Economy.class) return;
+        if (event.getProvider().getService() != Economy.class) return;
 
         // Services may be registered while the server is still processing its
         // startup queue. Move initialization to the next tick for a stable
@@ -72,7 +93,7 @@ public final class DonutShop extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onEconomyServiceUnregister(ServiceUnregisterEvent event) {
-        if (event.getProvider() != Economy.class) return;
+        if (event.getProvider().getService() != Economy.class) return;
 
         RegisteredServiceProvider<Economy> current = getServer().getServicesManager()
                 .getRegistration(Economy.class);

@@ -11,11 +11,15 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +54,10 @@ public final class ShopManager {
         }
 
         FileConfiguration next = YamlConfiguration.loadConfiguration(file);
+        if (!migrateBuiltInShop(next, file)) {
+            plugin.getLogger().severe("Unable to migrate shop.yml safely. Existing shop data was not modified further.");
+            return false;
+        }
         ConfigurationSection root = next.getConfigurationSection("categories");
         if (root == null) {
             plugin.getLogger().severe("shop.yml is missing the 'categories' section.");
@@ -76,7 +84,8 @@ public final class ShopManager {
                 continue;
             }
 
-            ShopCategory category = new ShopCategory(id, name, icon);
+            String title = next.getString(path + ".title", "&8shop - " + id);
+            ShopCategory category = new ShopCategory(id, name, icon, title, next.getStringList(path + ".lore"));
             Set<Integer> usedSlots = new HashSet<>();
 
             for (String itemId : items.getKeys(false)) {
@@ -145,6 +154,94 @@ public final class ShopManager {
                     + categories.size() + " categories.");
         }
         return true;
+    }
+
+    /**
+     * Migrates older installations without destroying valid ShopEdit changes.
+     * Missing/broken built-in categories are restored from the bundled release
+     * resource. The old Shard category is removed because DonutShop uses Farm.
+     */
+    private boolean migrateBuiltInShop(FileConfiguration current, File file) {
+        InputStream stream = plugin.getResource("shop.yml");
+        if (stream == null) return false;
+
+        FileConfiguration defaults;
+        try (InputStream input = stream;
+             InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+            defaults = YamlConfiguration.loadConfiguration(reader);
+        } catch (RuntimeException | IOException exception) {
+            plugin.getLogger().log(Level.SEVERE, "Unable to read bundled shop.yml defaults.", exception);
+            return false;
+        }
+
+        ConfigurationSection defaultCategories = defaults.getConfigurationSection("categories");
+        ConfigurationSection currentCategories = current.getConfigurationSection("categories");
+        if (defaultCategories == null) return false;
+        if (currentCategories == null) {
+            current.set("categories", defaultCategories.getValues(false));
+            return saveMigratedShop(current, file, "missing categories section");
+        }
+
+        boolean changed = false;
+        for (String id : List.of("end", "nether", "gear", "food", "farm")) {
+            String path = "categories." + id;
+            if (!isUsableCategory(current, path)) {
+                ConfigurationSection source = defaultCategories.getConfigurationSection(id);
+                if (source != null) {
+                    current.set(path, source.getValues(true));
+                    plugin.getLogger().warning("Migrated broken/missing category '" + id + "' from bundled defaults.");
+                    changed = true;
+                }
+            }
+        }
+
+        if (current.contains("categories.shard")) {
+            current.set("categories.shard", null);
+            plugin.getLogger().info("Migrated legacy 'shard' category to 'farm'.");
+            changed = true;
+        }
+
+        if (changed) return saveMigratedShop(current, file, "built-in category migration");
+        return true;
+    }
+
+    private boolean isUsableCategory(FileConfiguration config, String path) {
+        Material icon = parseMaterial(config.getString(path + ".icon"));
+        ConfigurationSection items = config.getConfigurationSection(path + ".items");
+        if (icon == null || items == null || items.getKeys(false).isEmpty()) return false;
+
+        int maxSlot = Math.max(9, plugin.getConfig().getInt("global.max-slot", 54));
+        int menuSize = normalizeSize(plugin.getConfig().getInt("shop.category-menu.size", 27));
+        int backSlot = plugin.getConfig().getInt("shop.category-menu.back-slot", 0);
+        Set<Integer> used = new HashSet<>();
+        for (String itemId : items.getKeys(false)) {
+            String itemPath = path + ".items." + itemId;
+            Material material = parseMaterial(config.getString(itemPath + ".material"));
+            double price = config.getDouble(itemPath + ".buy", -1D);
+            int slot = config.getInt(itemPath + ".slot", -1);
+            if (material == null || !Double.isFinite(price) || price <= 0
+                    || slot < 0 || slot >= maxSlot || slot >= menuSize
+                    || slot == backSlot || !used.add(slot)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean saveMigratedShop(FileConfiguration config, File file, String reason) {
+        try {
+            if (file.exists()) {
+                File backup = new File(file.getParentFile(), file.getName() + ".bak");
+                if (!backup.exists() && !file.renameTo(backup)) {
+                    plugin.getLogger().warning("Could not create shop.yml backup before " + reason + ".");
+                }
+            }
+            config.save(file);
+            return true;
+        } catch (IOException exception) {
+            plugin.getLogger().log(Level.SEVERE, "Unable to save migrated shop.yml.", exception);
+            return false;
+        }
     }
 
     private void validateMainMenu(Map<String, ShopCategory> parsed) {
