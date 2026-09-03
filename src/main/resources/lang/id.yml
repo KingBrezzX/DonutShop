@@ -35,6 +35,8 @@ messages:
 
   shopedit-invalid-item: "&cItem yang dipilih tidak valid."
 
+  shopedit-item-selected: "&aItem berhasil dipilih. Sekarang klik slot shop untuk menempatkannya."
+
   shopedit-item-saved: "&aItem shop berhasil disimpan."
 
   shopedit-item-removed: "&aItem shop berhasil dihapus."
