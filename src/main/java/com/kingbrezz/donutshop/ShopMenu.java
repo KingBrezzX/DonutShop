@@ -69,7 +69,7 @@ public final class ShopMenu {
     public static void openCategory(DonutShop plugin, Player player, ShopCategory category) {
         int size = normalizeSize(plugin.getConfig().getInt("shop.category-menu.size", 27));
         Holder holder = new Holder(category.id());
-        Inventory inventory = Bukkit.createInventory(holder, size, component(category.name()));
+        Inventory inventory = Bukkit.createInventory(holder, size, component("&8shop - " + category.id()));
         holder.bind(inventory);
 
         for (ShopItem item : category.items()) {
@@ -95,10 +95,15 @@ public final class ShopMenu {
         for (String line : item.lore()) {
             lore.add(component(line));
         }
-        lore.add(Component.empty());
-        lore.add(component(plugin.getConfig().getString("shop.item-lore.buy", "&7Price: &a{price}")
-                .replace("{price}", format(item.buyPrice()))));
-        lore.add(component(plugin.getConfig().getString("shop.item-lore.click", "&eLeft-click &7to buy &8• &eShift-click &7for bulk")));
+        String buyLine = plugin.getConfig().getString("shop.item-lore.buy", "");
+        if (buyLine != null && !buyLine.isBlank()) {
+            lore.add(Component.empty());
+            lore.add(component(buyLine.replace("{price}", format(item.buyPrice()))));
+        }
+        String clickLine = plugin.getConfig().getString("shop.item-lore.click", "&eLeft-click to buy from the shop");
+        if (clickLine != null && !clickLine.isBlank()) {
+            lore.add(component(clickLine));
+        }
         meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
@@ -109,6 +114,9 @@ public final class ShopMenu {
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
             meta.displayName(component(category.name()));
+            if (!category.lore().isEmpty()) {
+                meta.lore(category.lore().stream().map(ShopMenu::component).toList());
+            }
             stack.setItemMeta(meta);
         }
         return stack;

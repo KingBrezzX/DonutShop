@@ -76,7 +76,7 @@ public final class ShopManager {
                 continue;
             }
 
-            ShopCategory category = new ShopCategory(id, name, icon);
+            ShopCategory category = new ShopCategory(id, name, icon, next.getStringList(path + ".lore"));
             Set<Integer> usedSlots = new HashSet<>();
 
             for (String itemId : items.getKeys(false)) {
