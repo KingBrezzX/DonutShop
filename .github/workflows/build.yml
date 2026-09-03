@@ -20,33 +20,26 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Set up Java 21 (Gradle runtime)
-        id: java21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: gradle
-
-      - name: Install Java 25 toolchain
+      - name: Set up Java 25
         id: java25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
+          cache: gradle
 
       - name: Set up Gradle
         env:
-          JAVA_HOME: ${{ steps.java21.outputs.path }}
+          JAVA_HOME: ${{ steps.java25.outputs.path }}
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.14.5'
 
       - name: Prepare Gradle Wrapper
         env:
-          JAVA_HOME: ${{ steps.java21.outputs.path }}
+          JAVA_HOME: ${{ steps.java25.outputs.path }}
         shell: bash
         run: |
           set -euo pipefail
@@ -57,12 +50,12 @@ jobs:
 
       - name: Verify wrapper
         env:
-          JAVA_HOME: ${{ steps.java21.outputs.path }}
+          JAVA_HOME: ${{ steps.java25.outputs.path }}
         run: ./gradlew --version
 
       - name: Clean build
         env:
-          JAVA_HOME: ${{ steps.java21.outputs.path }}
+          JAVA_HOME: ${{ steps.java25.outputs.path }}
         run: ./gradlew clean build --no-daemon --stacktrace
 
       - name: Verify release JAR
@@ -83,7 +76,7 @@ jobs:
           jar tf "${jar}" | grep -Fx 'lang/de.yml'
 
       - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: DonutShop-${{ github.sha }}
           path: build/libs/DonutShop-*.jar
