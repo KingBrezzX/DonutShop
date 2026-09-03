@@ -4,25 +4,99 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import java.io.*;
-import java.util.*;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+/** Loads, validates and serves all supported language resources. */
 public final class LanguageManager {
-    public static final List<String> SUPPORTED=List.of("id","en","zh","vi","de");
-    private final DonutShop plugin; private final Map<String,FileConfiguration> languages=new LinkedHashMap<>();
-    public LanguageManager(DonutShop plugin){this.plugin=plugin;}
-    public void load(){
-        languages.clear(); File dir=new File(plugin.getDataFolder(),"lang"); if(!dir.exists() && !dir.mkdirs()) plugin.getLogger().warning("Could not create lang directory.");
-        for(String id:SUPPORTED){File f=new File(dir,id+".yml"); if(!f.exists()) plugin.saveResource("lang/"+id+".yml",false); languages.put(id,YamlConfiguration.loadConfiguration(f));}
-        FileConfiguration base=languages.get("en"); for(String id:SUPPORTED){ for(String key:base.getKeys(true)){ if(base.isString(key) && !languages.get(id).isString(key)) plugin.getLogger().warning("Missing language key: "+id+" -> "+key); } }
+    public static final List<String> SUPPORTED = List.of("id", "en", "zh", "vi", "de");
+
+    private final DonutShop plugin;
+    private final Map<String, FileConfiguration> languages = new LinkedHashMap<>();
+
+    public LanguageManager(DonutShop plugin) {
+        this.plugin = plugin;
     }
-    public String get(String path){return get(path,Map.of());}
-    public String get(String path, Map<String,String> placeholders){
-        String id=plugin.getConfig().getString("language","id").toLowerCase(Locale.ROOT); FileConfiguration cfg=languages.getOrDefault(id,languages.get("id"));
-        String value=cfg==null?path:cfg.getString(path,path); for(var e:placeholders.entrySet()) value=value.replace("{" + e.getKey() + "}",e.getValue());
-        return ChatColor.translateAlternateColorCodes('&',value);
+
+    public void load() {
+        languages.clear();
+
+        File directory = new File(plugin.getDataFolder(), "lang");
+        if (!directory.exists() && !directory.mkdirs()) {
+            plugin.getLogger().severe("Unable to create language directory: " + directory);
+            return;
+        }
+
+        boolean createMissing = plugin.getConfig().getBoolean("persistence.create-missing-language-files", true);
+        for (String locale : SUPPORTED) {
+            File file = new File(directory, locale + ".yml");
+            if (!file.exists() && createMissing) {
+                plugin.saveResource("lang/" + locale + ".yml", false);
+            }
+            languages.put(locale, YamlConfiguration.loadConfiguration(file));
+        }
+
+        validateLanguageParity();
     }
-    public void send(CommandSender sender,String path){sender.sendMessage(get(path));}
-    public void send(CommandSender sender,String path,Map<String,String> placeholders){sender.sendMessage(get(path,placeholders));}
-    public boolean isSupported(String id){return id!=null && SUPPORTED.contains(id.toLowerCase(Locale.ROOT));}
+
+    private void validateLanguageParity() {
+        FileConfiguration english = languages.get("en");
+        if (english == null) {
+            plugin.getLogger().severe("English language resource could not be loaded.");
+            return;
+        }
+
+        for (String locale : SUPPORTED) {
+            FileConfiguration target = languages.get(locale);
+            List<String> missing = new ArrayList<>();
+            for (String key : english.getKeys(true)) {
+                if (english.isString(key) && (target == null || !target.isString(key))) {
+                    missing.add(key);
+                }
+            }
+            if (!missing.isEmpty()) {
+                plugin.getLogger().severe("Language " + locale + " is missing keys: " + missing);
+            }
+        }
+    }
+
+    public String get(String path) {
+        return get(path, Map.of());
+    }
+
+    public String get(String path, Map<String, String> placeholders) {
+        String requested = plugin.getConfig().getString("language", "id").toLowerCase(Locale.ROOT);
+        FileConfiguration selected = languages.get(requested);
+        if (selected == null) {
+            selected = languages.get("id");
+        }
+
+        String value = selected == null ? null : selected.getString(path);
+        if (value == null) {
+            FileConfiguration english = languages.get("en");
+            value = english == null ? path : english.getString(path, path);
+        }
+
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            value = value.replace("{" + entry.getKey() + "}", entry.getValue());
+        }
+        return ChatColor.translateAlternateColorCodes('&', value);
+    }
+
+    public void send(CommandSender sender, String path) {
+        sender.sendMessage(get(path));
+    }
+
+    public void send(CommandSender sender, String path, Map<String, String> placeholders) {
+        sender.sendMessage(get(path, placeholders));
+    }
+
+    public boolean isSupported(String locale) {
+        return locale != null && SUPPORTED.contains(locale.toLowerCase(Locale.ROOT));
+    }
 }

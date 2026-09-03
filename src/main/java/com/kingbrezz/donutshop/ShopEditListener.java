@@ -1,8 +1,55 @@
 package com.kingbrezz.donutshop;
-import org.bukkit.entity.Player; import org.bukkit.event.*; import org.bukkit.event.inventory.*; import org.bukkit.event.player.PlayerQuitEvent;
-public final class ShopEditListener implements Listener {private final DonutShop plugin;public ShopEditListener(DonutShop p){plugin=p;}
- @EventHandler(priority=EventPriority.HIGHEST) public void click(InventoryClickEvent e){if(!(e.getWhoClicked() instanceof Player p))return;if(!(e.getView().getTopInventory().getHolder() instanceof ShopEditMenu.Holder h))return;e.setCancelled(true);if(e.getRawSlot()>=0&&e.getRawSlot()<e.getView().getTopInventory().getSize())ShopEditMenu.handleTopClick(plugin,p,h,e.getRawSlot(),e.getClick());else if(e.getRawSlot()>=e.getView().getTopInventory().getSize())ShopEditMenu.handlePlayerClick(plugin,p,e.getRawSlot(),e.getClick());}
- @EventHandler(priority=EventPriority.HIGHEST) public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof ShopEditMenu.Holder h){for(int s:e.getRawSlots())if(s<e.getView().getTopInventory().getSize()){e.setCancelled(true);return;}}}
- @EventHandler public void close(InventoryCloseEvent e){if(e.getPlayer() instanceof Player p && e.getInventory().getHolder() instanceof ShopEditMenu.Holder)ShopEditMenu.close(p);}
- @EventHandler public void quit(PlayerQuitEvent e){ShopEditMenu.close(e.getPlayer());}
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+/** Strictly controls the ShopEdit inventory to prevent item movement/duplication. */
+public final class ShopEditListener implements Listener {
+    private final DonutShop plugin;
+
+    public ShopEditListener(DonutShop plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getView().getTopInventory().getHolder() instanceof ShopEditMenu.Holder holder)) return;
+
+        event.setCancelled(true);
+        int topSize = event.getView().getTopInventory().getSize();
+        if (event.getRawSlot() >= 0 && event.getRawSlot() < topSize) {
+            ShopEditMenu.handleTopClick(plugin, player, holder, event.getRawSlot(), event.getClick());
+        } else if (event.getRawSlot() >= topSize) {
+            ShopEditMenu.handlePlayerClick(plugin, player, event.getRawSlot(), event.getClick(), topSize);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDrag(InventoryDragEvent event) {
+        if (!(event.getView().getTopInventory().getHolder() instanceof ShopEditMenu.Holder)) return;
+        int topSize = event.getView().getTopInventory().getSize();
+        if (event.getRawSlots().stream().anyMatch(slot -> slot < topSize)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onClose(InventoryCloseEvent event) {
+        if (event.getPlayer() instanceof Player player
+                && event.getInventory().getHolder() instanceof ShopEditMenu.Holder) {
+            ShopEditMenu.close(player);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        ShopEditMenu.close(event.getPlayer());
+    }
 }
