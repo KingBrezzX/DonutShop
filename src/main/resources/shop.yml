@@ -1,360 +1,325 @@
-# ============================================================
-# DonutShop
-# Author: KingBrezz
-#
-# Categories:
-# End
-# Nether
-# Gear
-# Food
-# Farm
-#
-# Prices are configurable.
-# This file is buy-only. Prices below are purchase prices.
-# ============================================================
+# DonutShop 1.1.2 - shop data synchronized with UltimateDonutSmp 1.5.
 
 categories:
 
-  # ==========================================================
-  # END
-  # ==========================================================
-
   end:
-    name: "&5&lEnd"
-    icon: ENDER_EYE
-
+    name: "&#6BF18DEnd"
+    icon: END_STONE
+    lore:
+      - "&fClick to view the end shop"
     items:
-
       ender_chest:
         material: ENDER_CHEST
         name: "&fEnder Chest"
-        lore: []
+        lore:
+        - "&fBuy price: &a$2,500"
         buy: 2500
         slot: 9
-
       ender_pearl:
         material: ENDER_PEARL
         name: "&fEnder Pearl"
-        lore: []
+        lore:
+        - "&fBuy price: &a$75"
         buy: 75
         slot: 10
-
       end_stone:
         material: END_STONE
         name: "&fEnd Stone"
-        lore: []
+        lore:
+        - "&fBuy price: &a$8"
         buy: 8
         slot: 11
-
-      dragons_breath:
+      dragon_breath:
         material: DRAGON_BREATH
-        name: "&fDragon's Breath"
-        lore: []
+        name: "&eDragon's Breath"
+        lore:
+        - "&fBuy price: &a$1,000"
         buy: 1000
         slot: 12
-
       end_rod:
         material: END_ROD
         name: "&fEnd Rod"
-        lore: []
+        lore:
+        - "&fBuy price: &a$100"
         buy: 100
         slot: 13
-
       chorus_fruit:
         material: CHORUS_FRUIT
         name: "&fChorus Fruit"
-        lore: []
+        lore:
+        - "&fBuy price: &a$25"
         buy: 25
         slot: 14
-
       popped_chorus_fruit:
         material: POPPED_CHORUS_FRUIT
         name: "&fPopped Chorus Fruit"
-        lore: []
+        lore:
+        - "&fBuy price: &a$15"
         buy: 15
         slot: 15
-
       shulker_shell:
         material: SHULKER_SHELL
         name: "&fShulker Shell"
-        lore: []
+        lore:
+        - "&fBuy price: &a$350"
         buy: 350
         slot: 16
-
       shulker_box:
         material: SHULKER_BOX
         name: "&fShulker Box"
-        lore: []
+        lore:
+        - "&fBuy price: &a$800"
         buy: 800
         slot: 17
 
-  # ==========================================================
-  # NETHER
-  # ==========================================================
-
   nether:
-    name: "&c&lNether"
+    name: "&#6BF18DNether"
     icon: NETHERRACK
-
+    lore:
+      - "&fClick to view the nether shop"
     items:
-
       blaze_rod:
         material: BLAZE_ROD
         name: "&fBlaze Rod"
-        lore: []
+        lore:
+        - "&fBuy price: &a$150"
         buy: 150
         slot: 9
-
       nether_wart:
         material: NETHER_WART
         name: "&fNether Wart"
-        lore: []
+        lore:
+        - "&fBuy price: &a$25"
         buy: 25
         slot: 10
-
       glowstone_dust:
         material: GLOWSTONE_DUST
         name: "&fGlowstone Dust"
-        lore: []
+        lore:
+        - "&fBuy price: &a$15"
         buy: 15
         slot: 11
-
       magma_cream:
         material: MAGMA_CREAM
         name: "&fMagma Cream"
-        lore: []
+        lore:
+        - "&fBuy price: &a$25"
         buy: 25
         slot: 12
-
       ghast_tear:
         material: GHAST_TEAR
         name: "&fGhast Tear"
-        lore: []
+        lore:
+        - "&fBuy price: &a$350"
         buy: 350
         slot: 13
-
-      quartz:
+      nether_quartz:
         material: QUARTZ
         name: "&fNether Quartz"
-        lore: []
+        lore:
+        - "&fBuy price: &a$15"
         buy: 15
         slot: 14
-
       soul_sand:
         material: SOUL_SAND
         name: "&fSoul Sand"
-        lore: []
+        lore:
+        - "&fBuy price: &a$50"
         buy: 50
         slot: 15
-
       magma_block:
         material: MAGMA_BLOCK
         name: "&fMagma Block"
-        lore: []
+        lore:
+        - "&fBuy price: &a$35"
         buy: 35
         slot: 16
-
       crying_obsidian:
         material: CRYING_OBSIDIAN
         name: "&fCrying Obsidian"
-        lore: []
+        lore:
+        - "&fBuy price: &a$150"
         buy: 150
         slot: 17
 
-  # ==========================================================
-  # GEAR
-  # ==========================================================
-
   gear:
-    name: "&6&lGear"
-    icon: DIAMOND_CHESTPLATE
-
+    name: "&#6BF18DGear"
+    icon: TOTEM_OF_UNDYING
+    lore:
+      - "&fClick to view the gear shop"
     items:
-
       obsidian:
         material: OBSIDIAN
         name: "&fObsidian"
-        lore: []
+        lore:
+        - "&fBuy price: &a$100"
         buy: 100
         slot: 9
-
       end_crystal:
         material: END_CRYSTAL
-        name: "&fEnd Crystal"
-        lore: []
+        name: "&bEnd Crystal"
+        lore:
+        - "&fBuy price: &a$350"
         buy: 350
         slot: 10
-
       respawn_anchor:
         material: RESPAWN_ANCHOR
         name: "&fRespawn Anchor"
-        lore: []
+        lore:
+        - "&fBuy price: &a$1000"
         buy: 1000
         slot: 11
-
       glowstone:
         material: GLOWSTONE
         name: "&fGlowstone"
-        lore: []
+        lore:
+        - "&fBuy price: &a$100"
         buy: 100
         slot: 12
-
-      totem:
+      totem_of_undying:
         material: TOTEM_OF_UNDYING
-        name: "&fTotem of Undying"
-        lore: []
+        name: "&eTotem of Undying"
+        lore:
+        - "&fBuy price: &a$1250"
         buy: 1250
         slot: 13
-
       ender_pearl:
         material: ENDER_PEARL
         name: "&fEnder Pearl"
-        lore: []
+        lore:
+        - "&fBuy price: &a$75"
         buy: 75
         slot: 14
-
       golden_apple:
         material: GOLDEN_APPLE
-        name: "&fGolden Apple"
-        lore: []
+        name: "&bGolden Apple"
+        lore:
+        - "&fBuy price: &a$250"
         buy: 250
         slot: 15
-
-      experience_bottle:
+      bottle_o_enchanting:
         material: EXPERIENCE_BOTTLE
-        name: "&fBottle O' Enchanting"
-        lore: []
+        name: "&eBottle O' Enchanting"
+        lore:
+        - "&fBuy price: &a$100"
         buy: 100
         slot: 16
 
-  # ==========================================================
-  # FOOD
-  # ==========================================================
-
   food:
-    name: "&a&lFood"
+    name: "&#6BF18DFood"
     icon: COOKED_BEEF
-
+    lore:
+      - "&fClick to view the food shop"
     items:
-
       potato:
         material: POTATO
         name: "&fPotato"
-        lore: []
+        lore:
+        - "&fBuy price: &a$75"
         buy: 75
         slot: 9
-
       sweet_berries:
         material: SWEET_BERRIES
         name: "&fSweet Berries"
-        lore: []
+        lore:
+        - "&fBuy price: &a$50"
         buy: 50
         slot: 10
-
       melon_slice:
         material: MELON_SLICE
         name: "&fMelon Slice"
-        lore: []
+        lore:
+        - "&fBuy price: &a$10"
         buy: 10
         slot: 11
-
       carrot:
         material: CARROT
         name: "&fCarrot"
-        lore: []
+        lore:
+        - "&fBuy price: &a$65"
         buy: 65
         slot: 12
-
       apple:
         material: APPLE
         name: "&fApple"
-        lore: []
+        lore:
+        - "&fBuy price: &a$25"
         buy: 25
         slot: 13
-
       cooked_chicken:
         material: COOKED_CHICKEN
-        name: "&fCooked Chicken"
-        lore: []
+        name: "&fApple"
+        lore:
+        - "&fBuy price: &a$30"
         buy: 30
         slot: 14
-
       steak:
         material: COOKED_BEEF
         name: "&fSteak"
-        lore: []
+        lore:
+        - "&fBuy price: &a$35"
         buy: 35
         slot: 15
-
       golden_carrot:
         material: GOLDEN_CARROT
         name: "&fGolden Carrot"
-        lore: []
+        lore:
+        - "&fBuy price: &a$50"
         buy: 50
         slot: 16
-
       golden_apple:
         material: GOLDEN_APPLE
-        name: "&fGolden Apple"
-        lore: []
+        name: "&bGolden Apple"
+        lore:
+        - "&fBuy price: &a$250"
         buy: 250
         slot: 17
 
-  # ==========================================================
-  # FARM
-  # ==========================================================
-
   farm:
-    name: "&2&lFarm"
-    icon: WHEAT
-
+    name: "&#6BF18DFarm"
+    icon: SUGAR_CANE
+    lore:
+      - "&fClick to view the farm shop"
     items:
-
       sugar_cane:
         material: SUGAR_CANE
         name: "&fSugar Cane"
         lore: []
         buy: 15
-        slot: 9
-
+        slot: 10
       red_mushroom:
         material: RED_MUSHROOM
         name: "&fRed Mushroom"
         lore: []
         buy: 25
-        slot: 10
-
+        slot: 11
       crimson_fungus:
         material: CRIMSON_FUNGUS
         name: "&fCrimson Fungus"
         lore: []
         buy: 25
-        slot: 11
-
-      wheat:
-        material: WHEAT
-        name: "&fWheat"
+        slot: 12
+      kelp:
+        material: KELP
+        name: "&fKelp"
         lore: []
         buy: 10
-        slot: 12
-
+        slot: 13
       wheat_seeds:
         material: WHEAT_SEEDS
         name: "&fWheat Seeds"
         lore: []
         buy: 5
-        slot: 13
-
-      beetroot_seeds:
-        material: BEETROOT_SEEDS
-        name: "&fBeetroot Seeds"
+        slot: 14
+      pumpkin_seeds:
+        material: PUMPKIN_SEEDS
+        name: "&fPumpkin Seeds"
         lore: []
         buy: 5
-        slot: 14
-
+        slot: 15
       cocoa_beans:
         material: COCOA_BEANS
         name: "&fCocoa Beans"
         lore: []
         buy: 20
-        slot: 15
+        slot: 16
