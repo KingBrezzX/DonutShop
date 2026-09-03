@@ -1,7 +1,9 @@
 package com.kingbrezz.donutshop;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -27,6 +29,8 @@ public final class ShopEditMenu {
             Pattern.CASE_INSENSITIVE
     );
     private static final Map<UUID, Session> SESSIONS = new HashMap<>();
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
 
     private ShopEditMenu() {}
 
@@ -72,7 +76,7 @@ public final class ShopEditMenu {
         Holder holder = new Holder(category.id(), sessionId);
         String title = plugin.getConfig().getString("shop-edit.title", "&8&lShopEdit &7• &f{category}")
                 .replace("{category}", category.id());
-        Inventory inventory = Bukkit.createInventory(holder, size, color(title));
+        Inventory inventory = Bukkit.createInventory(holder, size, component(title));
         holder.bind(inventory);
         SESSIONS.put(player.getUniqueId(), new Session(category.id(), sessionId));
 
@@ -154,10 +158,10 @@ public final class ShopEditMenu {
         );
         double price = parsePrice(selected, fallback);
         String displayName = selected.hasItemMeta() && selected.getItemMeta().hasDisplayName()
-                ? selected.getItemMeta().getDisplayName()
+                ? LEGACY.serialize(selected.getItemMeta().displayName())
                 : "&f" + pretty(selected.getType());
         List<String> lore = selected.hasItemMeta() && selected.getItemMeta().hasLore()
-                ? new ArrayList<>(selected.getItemMeta().getLore())
+                ? selected.getItemMeta().lore().stream().map(LEGACY::serialize).collect(java.util.stream.Collectors.toCollection(ArrayList::new))
                 : new ArrayList<>();
 
         if (plugin.getConfig().getBoolean("shop-edit.selection.strip-price-tags", false)) {
@@ -171,7 +175,7 @@ public final class ShopEditMenu {
         writeItem(plugin, category, item);
         refresh(plugin, player, category);
         plugin.getLanguageManager().send(player, "messages.shopedit-item-saved", Map.of(
-                "item", ChatColor.stripColor(color(displayName)),
+                "item", PLAIN.serialize(component(displayName)),
                 "price", format(price)
         ));
         autoSave(plugin);
@@ -201,11 +205,11 @@ public final class ShopEditMenu {
         if (!item.hasItemMeta()) return fallback;
         ItemMeta meta = item.getItemMeta();
         List<String> lines = new ArrayList<>();
-        if (meta.hasDisplayName()) lines.add(meta.getDisplayName());
-        if (meta.hasLore()) lines.addAll(meta.getLore());
+        if (meta.hasDisplayName()) lines.add(LEGACY.serialize(meta.displayName()));
+        if (meta.hasLore()) lines.addAll(meta.lore().stream().map(LEGACY::serialize).toList());
 
         for (String line : lines) {
-            Matcher matcher = PRICE_PATTERN.matcher(ChatColor.stripColor(line));
+            Matcher matcher = PRICE_PATTERN.matcher(PLAIN.serialize(component(line)));
             if (!matcher.find()) continue;
             try {
                 double value = Double.parseDouble(matcher.group(1).replace(',', '.'));
@@ -249,12 +253,12 @@ public final class ShopEditMenu {
         ItemStack item = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(color(plugin.getConfig().getString("shop-edit.help.title", "&b&lShopEdit Help")));
-            meta.setLore(List.of(
-                    color(plugin.getConfig().getString("shop-edit.help.select", "&7Click an item in your inventory to select it.")),
-                    color(plugin.getConfig().getString("shop-edit.help.place", "&7Left-click a valid shop slot to place it.")),
-                    color(plugin.getConfig().getString("shop-edit.help.remove", "&7Right-click a shop slot to remove it.")),
-                    color(plugin.getConfig().getString("shop-edit.help.price", "&7Add &f[PRICE] 250 &7to the item's name/lore."))
+            meta.displayName(component(plugin.getConfig().getString("shop-edit.help.title", "&b&lShopEdit Help")));
+            meta.lore(List.of(
+                    component(plugin.getConfig().getString("shop-edit.help.select", "&7Click an item in your inventory to select it.")),
+                    component(plugin.getConfig().getString("shop-edit.help.place", "&7Left-click a valid shop slot to place it.")),
+                    component(plugin.getConfig().getString("shop-edit.help.remove", "&7Right-click a shop slot to remove it.")),
+                    component(plugin.getConfig().getString("shop-edit.help.price", "&7Add &f[PRICE] 250 &7to the item's name/lore."))
             ));
             item.setItemMeta(meta);
         }
@@ -283,8 +287,8 @@ public final class ShopEditMenu {
         return size - size % 9;
     }
 
-    private static String color(String text) {
-        return ChatColor.translateAlternateColorCodes('&', text == null ? "" : text);
+    private static Component component(String text) {
+        return LEGACY.deserialize(text == null ? "" : text);
     }
 
     private static String format(double value) {

@@ -1,6 +1,7 @@
 package com.kingbrezz.donutshop;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,6 +16,7 @@ import java.util.Map;
 /** Loads, validates and serves all supported language resources. */
 public final class LanguageManager {
     public static final List<String> SUPPORTED = List.of("id", "en", "zh", "vi", "de");
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
 
     private final DonutShop plugin;
     private final Map<String, FileConfiguration> languages = new LinkedHashMap<>();
@@ -85,15 +87,19 @@ public final class LanguageManager {
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
             value = value.replace("{" + entry.getKey() + "}", entry.getValue());
         }
-        return ChatColor.translateAlternateColorCodes('&', value);
+        return LEGACY.serialize(LEGACY.deserialize(value));
     }
 
     public void send(CommandSender sender, String path) {
-        sender.sendMessage(get(path));
+        sender.sendMessage(component(get(path)));
     }
 
     public void send(CommandSender sender, String path, Map<String, String> placeholders) {
-        sender.sendMessage(get(path, placeholders));
+        sender.sendMessage(component(get(path, placeholders)));
+    }
+
+    private static Component component(String text) {
+        return LEGACY.deserialize(text == null ? "" : text);
     }
 
     public boolean isSupported(String locale) {

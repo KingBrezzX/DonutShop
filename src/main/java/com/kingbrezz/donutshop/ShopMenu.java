@@ -1,7 +1,8 @@
 package com.kingbrezz.donutshop;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -16,6 +17,7 @@ import java.util.Locale;
 /** Factory for all player-facing shop inventories. */
 public final class ShopMenu {
     private static final String MAIN_ID = "__main__";
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
 
     private ShopMenu() {}
 
@@ -48,8 +50,8 @@ public final class ShopMenu {
     public static void openMain(DonutShop plugin, Player player) {
         int size = normalizeSize(plugin.getConfig().getInt("shop.main-menu.size", 27));
         Holder holder = new Holder(MAIN_ID);
-        Inventory inventory = Bukkit.createInventory(holder, size,
-                color(plugin.getConfig().getString("shop.main-menu.title", "&8&lDonutShop")));
+        Inventory inventory = Bukkit.createInventory(holder, size, component(
+                plugin.getConfig().getString("shop.main-menu.title", "&8&lDonutShop")));
         holder.bind(inventory);
 
         List<String> categories = plugin.getConfig().getStringList("shop.main-menu.categories");
@@ -67,7 +69,7 @@ public final class ShopMenu {
     public static void openCategory(DonutShop plugin, Player player, ShopCategory category) {
         int size = normalizeSize(plugin.getConfig().getInt("shop.category-menu.size", 27));
         Holder holder = new Holder(category.id());
-        Inventory inventory = Bukkit.createInventory(holder, size, color(category.name()));
+        Inventory inventory = Bukkit.createInventory(holder, size, component(category.name()));
         holder.bind(inventory);
 
         for (ShopItem item : category.items()) {
@@ -88,16 +90,16 @@ public final class ShopMenu {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return stack;
 
-        meta.setDisplayName(color(item.displayName()));
-        List<String> lore = new ArrayList<>();
+        meta.displayName(component(item.displayName()));
+        List<Component> lore = new ArrayList<>();
         for (String line : item.lore()) {
-            lore.add(color(line));
+            lore.add(component(line));
         }
-        lore.add("");
-        lore.add(color(plugin.getConfig().getString("shop.item-lore.buy", "&7Price: &a{price}")
+        lore.add(Component.empty());
+        lore.add(component(plugin.getConfig().getString("shop.item-lore.buy", "&7Price: &a{price}")
                 .replace("{price}", format(item.buyPrice()))));
-        lore.add(color(plugin.getConfig().getString("shop.item-lore.click", "&eLeft-click &7to buy &8• &eShift-click &7for bulk")));
-        meta.setLore(lore);
+        lore.add(component(plugin.getConfig().getString("shop.item-lore.click", "&eLeft-click &7to buy &8• &eShift-click &7for bulk")));
+        meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
     }
@@ -106,7 +108,7 @@ public final class ShopMenu {
         ItemStack stack = new ItemStack(category.icon());
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(color(category.name()));
+            meta.displayName(component(category.name()));
             stack.setItemMeta(meta);
         }
         return stack;
@@ -116,7 +118,7 @@ public final class ShopMenu {
         ItemStack stack = new ItemStack(Material.ARROW);
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(color(plugin.getConfig().getString("shop.category-menu.back-name", "&c&lBack")));
+            meta.displayName(component(plugin.getConfig().getString("shop.category-menu.back-name", "&c&lBack")));
             stack.setItemMeta(meta);
         }
         return stack;
@@ -128,7 +130,11 @@ public final class ShopMenu {
     }
 
     static String color(String text) {
-        return ChatColor.translateAlternateColorCodes('&', text == null ? "" : text);
+        return LEGACY.serialize(component(text));
+    }
+
+    static Component component(String text) {
+        return LEGACY.deserialize(text == null ? "" : text);
     }
 
     private static String format(double value) {

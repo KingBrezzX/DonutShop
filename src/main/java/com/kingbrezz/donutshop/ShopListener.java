@@ -1,5 +1,7 @@
 package com.kingbrezz.donutshop;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,6 +9,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.List;
 import java.util.Locale;
@@ -14,6 +17,7 @@ import java.util.Map;
 
 /** Protects player shop GUIs and dispatches purchases. */
 public final class ShopListener implements Listener {
+    private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
     private final DonutShop plugin;
 
     public ShopListener(DonutShop plugin) {
@@ -72,7 +76,7 @@ public final class ShopListener implements Listener {
 
         ShopManager.PurchaseResult result = plugin.getShopManager().buy(player, item, amount);
         if (result.success()) {
-            String displayName = org.bukkit.ChatColor.stripColor(ShopMenu.color(item.displayName()));
+            String displayName = PLAIN.serialize(ShopMenu.component(item.displayName()));
             plugin.getLanguageManager().send(player, "messages.purchase-success", Map.of(
                     "amount", String.valueOf(amount),
                     "item", displayName,
@@ -103,14 +107,22 @@ public final class ShopListener implements Listener {
 
     private void playSound(Player player, String path) {
         if (!plugin.getConfig().getBoolean("sounds.enabled", true)) return;
-        try {
-            Sound sound = Sound.valueOf(plugin.getConfig().getString(path + ".sound", "ENTITY_EXPERIENCE_ORB_PICKUP"));
-            float volume = (float) plugin.getConfig().getDouble(path + ".volume", 1.0D);
-            float pitch = (float) plugin.getConfig().getDouble(path + ".pitch", 1.0D);
-            player.playSound(player.getLocation(), sound, volume, pitch);
-        } catch (IllegalArgumentException exception) {
-            plugin.getLogger().warning("Invalid sound configured at " + path);
+
+        String configured = plugin.getConfig().getString(path + ".sound", "ENTITY_EXPERIENCE_ORB_PICKUP");
+        if (configured == null || configured.isBlank()) return;
+
+        NamespacedKey key = configured.indexOf(':') >= 0
+                ? NamespacedKey.fromString(configured.toLowerCase(Locale.ROOT))
+                : NamespacedKey.minecraft(configured.toLowerCase(Locale.ROOT));
+        Sound sound = key == null ? null : Registry.SOUND_EVENT.get(key);
+        if (sound == null) {
+            plugin.getLogger().warning("Invalid sound configured at " + path + ": " + configured);
+            return;
         }
+
+        float volume = (float) plugin.getConfig().getDouble(path + ".volume", 1.0D);
+        float pitch = (float) plugin.getConfig().getDouble(path + ".pitch", 1.0D);
+        player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
     private String format(double value) {
