@@ -1,42 +1,20 @@
-# ============================================================
-# DonutShop - Bahasa Indonesia
-# Author: KingBrezz
-# ============================================================
-
 messages:
-
   player-only: "&cPerintah ini hanya dapat digunakan oleh pemain."
-
   no-permission: "&cKamu tidak memiliki izin untuk menggunakan perintah ini."
-
   reload-success: "&aDonutShop berhasil dimuat ulang."
-
   category-not-found: "&cKategori &f{category} &ctidak ditemukan."
-
   purchase-success: "&aBerhasil membeli &f{amount}x {item} &adengan harga &f{price}&a."
-
-  sell-success: "&aBerhasil menjual &f{amount}x {item} &adengan harga &f{price}&a."
-
-  not-enough-money: "&cUang kamu tidak cukup."
-
-  not-enough-items: "&cItem yang kamu miliki tidak cukup."
-
+  not-enough-money: "&cSaldo kamu tidak cukup untuk pembelian ini."
   inventory-full: "&cInventory kamu tidak memiliki ruang yang cukup."
-
-  purchase-failed: "&cPembelian gagal. Silakan coba lagi."
-
+  purchase-failed: "&cPembelian gagal. Uang dan item tidak berubah."
   cannot-buy: "&cItem ini tidak dapat dibeli."
-
-  cannot-sell: "&cItem ini tidak dapat dijual."
-
   shopedit-disabled: "&cFitur ShopEdit sedang dinonaktifkan."
-
   shopedit-usage: "&eGunakan: &f/shopedit <end|nether|gear|food|farm>"
-
   shopedit-invalid-item: "&cItem yang dipilih tidak valid."
-
-  shopedit-item-selected: "&aItem berhasil dipilih. Sekarang klik slot shop untuk menempatkannya."
-
+  shopedit-item-selected: "&aItem dipilih. Sekarang klik slot shop yang valid."
   shopedit-item-saved: "&aItem shop berhasil disimpan."
-
   shopedit-item-removed: "&aItem shop berhasil dihapus."
+  shopedit-reserved-slot: "&cSlot tersebut dicadangkan dan tidak dapat diedit."
+  shopedit-help: "&b&lShopEdit &7• Pilih item dari inventory, klik kiri untuk memasang, klik kanan untuk menghapus."
+  version: "&b&lDonutShop &7v&f{version} &7• &fKingBrezz"
+  admin-help: "&b&lDonutShop &7• &f/donutshop reload &7| &f/donutshop version &7| &f/shopedit <category>"

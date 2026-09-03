@@ -1,40 +1,20 @@
-# ============================================================
-# DonutShop - Deutsch
-# Author: KingBrezz
-# ============================================================
-
 messages:
-
   player-only: "&cDieser Befehl kann nur von einem Spieler verwendet werden."
-
-  no-permission: "&cDu hast keine Berechtigung, diesen Befehl zu verwenden."
-
+  no-permission: "&cDu hast keine Berechtigung für diesen Befehl."
   reload-success: "&aDonutShop wurde erfolgreich neu geladen."
-
-  category-not-found: "&cDie Kategorie &f{category} &cwurde nicht gefunden."
-
-  purchase-success: "&aErfolgreich &f{amount}x {item} &afür &f{price} &agekauft."
-
-  sell-success: "&aErfolgreich &f{amount}x {item} &afür &f{price} &averkauft."
-
-  not-enough-money: "&cDu hast nicht genug Geld."
-
-  not-enough-items: "&cDu hast nicht genügend Gegenstände."
-
+  category-not-found: "&cKategorie &f{category} &cwurde nicht gefunden."
+  purchase-success: "&aGekauft: &f{amount}x {item} &afür &f{price}&a."
+  not-enough-money: "&cDein Kontostand reicht für diesen Kauf nicht aus."
   inventory-full: "&cDein Inventar hat nicht genügend freien Platz."
-
-  purchase-failed: "&cDer Kauf ist fehlgeschlagen. Bitte versuche es erneut."
-
+  purchase-failed: "&cKauf fehlgeschlagen. Geld und Gegenstände wurden nicht verändert."
   cannot-buy: "&cDieser Gegenstand kann nicht gekauft werden."
-
-  cannot-sell: "&cDieser Gegenstand kann nicht verkauft werden."
-
   shopedit-disabled: "&cShopEdit ist derzeit deaktiviert."
-
   shopedit-usage: "&eVerwendung: &f/shopedit <end|nether|gear|food|farm>"
-
   shopedit-invalid-item: "&cDer ausgewählte Gegenstand ist ungültig."
-
+  shopedit-item-selected: "&aGegenstand ausgewählt. Klicke jetzt auf einen gültigen Shop-Slot."
   shopedit-item-saved: "&aShop-Gegenstand erfolgreich gespeichert."
-
   shopedit-item-removed: "&aShop-Gegenstand erfolgreich entfernt."
+  shopedit-reserved-slot: "&cDieser Slot ist reserviert und kann nicht bearbeitet werden."
+  shopedit-help: "&b&lShopEdit &7• Inventar-Gegenstand auswählen, Linksklick zum Platzieren, Rechtsklick zum Entfernen."
+  version: "&b&lDonutShop &7v&f{version} &7• &fKingBrezz"
+  admin-help: "&b&lDonutShop &7• &f/donutshop reload &7| &f/donutshop version &7| &f/shopedit <category>"

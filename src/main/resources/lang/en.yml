@@ -1,40 +1,20 @@
-# ============================================================
-# DonutShop - English
-# Author: KingBrezz
-# ============================================================
-
 messages:
-
   player-only: "&cThis command can only be used by a player."
-
   no-permission: "&cYou do not have permission to use this command."
-
   reload-success: "&aDonutShop has been reloaded successfully."
-
   category-not-found: "&cCategory &f{category} &cwas not found."
-
-  purchase-success: "&aSuccessfully purchased &f{amount}x {item} &afor &f{price}&a."
-
-  sell-success: "&aSuccessfully sold &f{amount}x {item} &afor &f{price}&a."
-
-  not-enough-money: "&cYou do not have enough money."
-
-  not-enough-items: "&cYou do not have enough items."
-
-  inventory-full: "&cYour inventory does not have enough space."
-
-  purchase-failed: "&cPurchase failed. Please try again."
-
+  purchase-success: "&aPurchased &f{amount}x {item} &afor &f{price}&a."
+  not-enough-money: "&cYou do not have enough balance for this purchase."
+  inventory-full: "&cYour inventory does not have enough free space."
+  purchase-failed: "&cPurchase failed. No money or items were changed."
   cannot-buy: "&cThis item cannot be purchased."
-
-  cannot-sell: "&cThis item cannot be sold."
-
   shopedit-disabled: "&cShopEdit is currently disabled."
-
   shopedit-usage: "&eUsage: &f/shopedit <end|nether|gear|food|farm>"
-
   shopedit-invalid-item: "&cThe selected item is invalid."
-
+  shopedit-item-selected: "&aItem selected. Now click a valid shop slot."
   shopedit-item-saved: "&aShop item saved successfully."
-
   shopedit-item-removed: "&aShop item removed successfully."
+  shopedit-reserved-slot: "&cThat slot is reserved and cannot be edited."
+  shopedit-help: "&b&lShopEdit &7• Select from your inventory, left-click to place, right-click to remove."
+  version: "&b&lDonutShop &7v&f{version} &7• &fKingBrezz"
+  admin-help: "&b&lDonutShop &7• &f/donutshop reload &7| &f/donutshop version &7| &f/shopedit <category>"

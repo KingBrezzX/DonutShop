@@ -1,40 +1,20 @@
-# ============================================================
-# DonutShop - Tiếng Việt
-# Author: KingBrezz
-# ============================================================
-
 messages:
-
   player-only: "&cLệnh này chỉ có thể được sử dụng bởi người chơi."
-
   no-permission: "&cBạn không có quyền sử dụng lệnh này."
-
   reload-success: "&aDonutShop đã được tải lại thành công."
-
   category-not-found: "&cKhông tìm thấy danh mục &f{category}&c."
-
-  purchase-success: "&aĐã mua thành công &f{amount}x {item} &avới giá &f{price}&a."
-
-  sell-success: "&aĐã bán thành công &f{amount}x {item} &avà nhận &f{price}&a."
-
-  not-enough-money: "&cBạn không có đủ tiền."
-
-  not-enough-items: "&cBạn không có đủ vật phẩm."
-
+  purchase-success: "&aĐã mua &f{amount}x {item} &avới giá &f{price}&a."
+  not-enough-money: "&cBạn không có đủ số dư cho giao dịch này."
   inventory-full: "&cTúi đồ của bạn không còn đủ chỗ trống."
-
-  purchase-failed: "&cMua hàng thất bại. Vui lòng thử lại."
-
+  purchase-failed: "&cMua hàng thất bại. Không có tiền hoặc vật phẩm nào bị thay đổi."
   cannot-buy: "&cVật phẩm này không thể mua."
-
-  cannot-sell: "&cVật phẩm này không thể bán."
-
   shopedit-disabled: "&cShopEdit hiện đang bị tắt."
-
   shopedit-usage: "&eCách dùng: &f/shopedit <end|nether|gear|food|farm>"
-
   shopedit-invalid-item: "&cVật phẩm được chọn không hợp lệ."
-
+  shopedit-item-selected: "&aĐã chọn vật phẩm. Bây giờ hãy nhấp vào một ô cửa hàng hợp lệ."
   shopedit-item-saved: "&aĐã lưu vật phẩm cửa hàng thành công."
-
   shopedit-item-removed: "&aĐã xóa vật phẩm cửa hàng thành công."
+  shopedit-reserved-slot: "&cÔ này được bảo lưu và không thể chỉnh sửa."
+  shopedit-help: "&b&lShopEdit &7• Chọn vật phẩm từ túi, nhấp trái để đặt, nhấp phải để xóa."
+  version: "&b&lDonutShop &7v&f{version} &7• &fKingBrezz"
+  admin-help: "&b&lDonutShop &7• &f/donutshop reload &7| &f/donutshop version &7| &f/shopedit <category>"
