@@ -1,6 +1,7 @@
 package com.kingbrezz.donutshop;
 
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,6 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public final class ShopManager {
+
+    private static final int MAX_TRANSACTION_AMOUNT = 2304;
 
     private final DonutShop plugin;
     private final Economy economy;
@@ -51,7 +54,8 @@ public final class ShopManager {
             );
         }
 
-        config = YamlConfiguration.loadConfiguration(file);
+        config =
+                YamlConfiguration.loadConfiguration(file);
 
         ConfigurationSection section =
                 config.getConfigurationSection(
@@ -65,7 +69,8 @@ public final class ShopManager {
             return;
         }
 
-        for (String id : section.getKeys(false)) {
+        for (String id :
+                section.getKeys(false)) {
 
             String path =
                     "categories." + id;
@@ -121,8 +126,7 @@ public final class ShopManager {
                             );
 
                     double buyPrice =
-                            Math.max(
-                                    0.0,
+                            sanitizePrice(
                                     config.getDouble(
                                             itemPath
                                                     + ".buy",
@@ -131,8 +135,7 @@ public final class ShopManager {
                             );
 
                     double sellPrice =
-                            Math.max(
-                                    0.0,
+                            sanitizePrice(
                                     config.getDouble(
                                             itemPath
                                                     + ".sell",
@@ -175,7 +178,9 @@ public final class ShopManager {
             }
 
             categories.put(
-                    id.toLowerCase(Locale.ROOT),
+                    id.toLowerCase(
+                            Locale.ROOT
+                    ),
                     category
             );
         }
@@ -188,13 +193,16 @@ public final class ShopManager {
     }
 
     public void save() {
-        if (config == null || file == null) {
+        if (config == null ||
+                file == null) {
             return;
         }
 
         try {
             config.save(file);
+
         } catch (IOException exception) {
+
             plugin.getLogger().severe(
                     "Failed to save shop.yml: "
                             + exception.getMessage()
@@ -212,7 +220,10 @@ public final class ShopManager {
             return;
         }
 
-        config.set(path, value);
+        config.set(
+                path,
+                value
+        );
     }
 
     public void removeConfigSection(
@@ -224,7 +235,10 @@ public final class ShopManager {
             return;
         }
 
-        config.set(path, null);
+        config.set(
+                path,
+                null
+        );
     }
 
     public boolean buy(
@@ -233,20 +247,31 @@ public final class ShopManager {
             int amount
     ) {
         if (player == null ||
+                !player.isOnline() ||
                 item == null ||
-                amount <= 0 ||
-                !item.canBuy()) {
+                economy == null) {
+            return false;
+        }
+
+        if (!item.canBuy() ||
+                !isValidAmount(amount)) {
             return false;
         }
 
         double total =
-                item.buyPrice() * amount;
+                calculateTotal(
+                        item.buyPrice(),
+                        amount
+                );
 
-        if (!Double.isFinite(total) ||
-                total <= 0) {
+        if (!isValidMoney(total)) {
             return false;
         }
 
+        /*
+         * Re-check the balance immediately before
+         * performing the transaction.
+         */
         if (!economy.has(
                 player,
                 total
@@ -254,48 +279,41 @@ public final class ShopManager {
             return false;
         }
 
-        ItemStack stack =
-                new ItemStack(
-                        item.material(),
-                        amount
-                );
-
-        HashMap<Integer, ItemStack> remaining =
-                player.getInventory()
-                        .addItem(stack);
-
         /*
-         * Never withdraw money if the inventory
-         * could not accept the complete purchase.
+         * Build and insert the items first.
+         *
+         * If Bukkit cannot insert everything, nothing
+         * is withdrawn.
          */
-        if (!remaining.isEmpty()) {
-
-            /*
-             * Roll back any items that were inserted
-             * before Bukkit reported remaining items.
-             */
-            for (ItemStack leftover :
-                    remaining.values()) {
-
-                if (leftover != null &&
-                        leftover.getType()
-                                != Material.AIR) {
-
-                    removeItems(
-                            player,
-                            leftover.getType(),
-                            leftover.getAmount()
-                    );
-                }
-            }
-
+        if (!addItems(
+                player,
+                item.material(),
+                amount
+        )) {
             return false;
         }
 
-        economy.withdrawPlayer(
-                player,
-                total
-        );
+        EconomyResponse response =
+                economy.withdrawPlayer(
+                        player,
+                        total
+                );
+
+        /*
+         * Economy transaction failed after items were
+         * inserted. Roll the items back.
+         */
+        if (response == null ||
+                !response.transactionSuccess()) {
+
+            removeItems(
+                    player,
+                    item.material(),
+                    amount
+            );
+
+            return false;
+        }
 
         return true;
     }
@@ -306,40 +324,136 @@ public final class ShopManager {
             int amount
     ) {
         if (player == null ||
+                !player.isOnline() ||
                 item == null ||
-                amount <= 0 ||
-                !item.canSell()) {
+                economy == null) {
             return false;
         }
 
-        int available =
-                countItems(
-                        player,
-                        item.material()
+        if (!item.canSell() ||
+                !isValidAmount(amount)) {
+            return false;
+        }
+
+        double total =
+                calculateTotal(
+                        item.sellPrice(),
+                        amount
                 );
 
-        if (available < amount) {
+        if (!isValidMoney(total)) {
             return false;
         }
 
-        removeItems(
+        /*
+         * Make sure the player owns enough items
+         * before touching the inventory.
+         */
+        if (countItems(
+                player,
+                item.material()
+        ) < amount) {
+            return false;
+        }
+
+        /*
+         * Remove the items first.
+         */
+        if (!removeItems(
                 player,
                 item.material(),
                 amount
-        );
-
-        double total =
-                item.sellPrice() * amount;
-
-        if (!Double.isFinite(total) ||
-                total <= 0) {
+        )) {
             return false;
         }
 
-        economy.depositPlayer(
-                player,
-                total
-        );
+        EconomyResponse response =
+                economy.depositPlayer(
+                        player,
+                        total
+                );
+
+        /*
+         * If the economy provider rejects the deposit,
+         * restore the exact amount of material.
+         */
+        if (response == null ||
+                !response.transactionSuccess()) {
+
+            if (!addItems(
+                    player,
+                    item.material(),
+                    amount
+            )) {
+                plugin.getLogger().severe(
+                        "CRITICAL: Failed to rollback "
+                                + amount
+                                + "x "
+                                + item.material().name()
+                                + " for "
+                                + player.getName()
+                );
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean addItems(
+            Player player,
+            Material material,
+            int amount
+    ) {
+        if (player == null ||
+                material == null ||
+                amount <= 0) {
+            return false;
+        }
+
+        int remaining = amount;
+
+        while (remaining > 0) {
+
+            int stackAmount =
+                    Math.min(
+                            remaining,
+                            material.getMaxStackSize()
+                    );
+
+            ItemStack stack =
+                    new ItemStack(
+                            material,
+                            stackAmount
+                    );
+
+            HashMap<Integer, ItemStack> leftovers =
+                    player.getInventory()
+                            .addItem(stack);
+
+            if (!leftovers.isEmpty()) {
+
+                /*
+                 * Roll back everything that was inserted
+                 * during this transaction.
+                 */
+                int inserted =
+                        amount - remaining;
+
+                if (inserted > 0) {
+                    removeItems(
+                            player,
+                            material,
+                            inserted
+                    );
+                }
+
+                return false;
+            }
+
+            remaining -= stackAmount;
+        }
 
         return true;
     }
@@ -348,7 +462,12 @@ public final class ShopManager {
             Player player,
             Material material
     ) {
-        int amount = 0;
+        if (player == null ||
+                material == null) {
+            return 0;
+        }
+
+        long amount = 0;
 
         for (ItemStack stack :
                 player.getInventory()
@@ -360,22 +479,38 @@ public final class ShopManager {
             }
 
             amount += stack.getAmount();
+
+            if (amount >= Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            }
         }
 
-        return amount;
+        return (int) amount;
     }
 
-    private void removeItems(
+    private boolean removeItems(
             Player player,
             Material material,
             int amount
     ) {
+        if (player == null ||
+                material == null ||
+                amount <= 0) {
+            return false;
+        }
+
+        if (countItems(
+                player,
+                material
+        ) < amount) {
+            return false;
+        }
+
         int remaining = amount;
 
         for (
                 int slot = 0;
-                slot < player.getInventory()
-                        .getSize()
+                slot < player.getInventory().getSize()
                         && remaining > 0;
                 slot++
         ) {
@@ -396,22 +531,80 @@ public final class ShopManager {
                     );
 
             int newAmount =
-                    stack.getAmount() - remove;
+                    stack.getAmount()
+                            - remove;
 
             if (newAmount <= 0) {
+
                 player.getInventory()
                         .setItem(
                                 slot,
                                 null
                         );
+
             } else {
+
                 stack.setAmount(
                         newAmount
                 );
+
+                player.getInventory()
+                        .setItem(
+                                slot,
+                                stack
+                        );
             }
 
             remaining -= remove;
         }
+
+        return remaining == 0;
+    }
+
+    private double calculateTotal(
+            double price,
+            int amount
+    ) {
+        if (!Double.isFinite(price) ||
+                price <= 0 ||
+                !isValidAmount(amount)) {
+            return -1;
+        }
+
+        double total =
+                price * amount;
+
+        if (!Double.isFinite(total) ||
+                total <= 0) {
+            return -1;
+        }
+
+        return total;
+    }
+
+    private boolean isValidAmount(
+            int amount
+    ) {
+        return amount > 0 &&
+                amount <= MAX_TRANSACTION_AMOUNT;
+    }
+
+    private double sanitizePrice(
+            double price
+    ) {
+        if (!Double.isFinite(price) ||
+                price < 0) {
+            return 0.0;
+        }
+
+        return price;
+    }
+
+    private boolean isValidMoney(
+            double amount
+    ) {
+        return Double.isFinite(amount) &&
+                amount > 0;
     }
 
     private Material parseMaterial(
@@ -424,11 +617,13 @@ public final class ShopManager {
         }
 
         try {
+
             return Material.valueOf(
                     name.toUpperCase(
                             Locale.ROOT
                     )
             );
+
         } catch (IllegalArgumentException exception) {
 
             plugin.getLogger().warning(
@@ -470,4 +665,4 @@ public final class ShopManager {
     public File getFile() {
         return file;
     }
-                                        }
+}
