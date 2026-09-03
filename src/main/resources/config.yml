@@ -1,0 +1,90 @@
+# ============================================================
+# DonutShop
+# Author: KingBrezz
+# ============================================================
+
+# Available languages:
+# id = Bahasa Indonesia
+# en = English
+# zh = 简体中文
+# vi = Tiếng Việt
+# de = Deutsch
+
+language: id
+
+# ============================================================
+# Economy
+# ============================================================
+
+economy:
+  # Display name used by messages.
+  currency-name: "$"
+
+  # Number formatting.
+  decimals: 2
+
+# ============================================================
+# Shop
+# ============================================================
+
+shop:
+  # Main GUI title.
+  title: "&8DonutShop"
+
+  # GUI size. Must be a multiple of 9.
+  size: 27
+
+  # Amount purchased when clicking an item.
+  default-amount: 1
+
+  # Allow shift-click to purchase a larger amount.
+  shift-click-amount: 16
+
+  # Categories available in the main menu.
+  categories:
+    - end
+    - nether
+    - gear
+    - food
+    - farm
+
+# ============================================================
+# ShopEdit
+# ============================================================
+
+shop-edit:
+  enabled: true
+
+  # Permission required for ShopEdit.
+  permission: donutshop.admin.shopedit
+
+  # Automatically save changes.
+  auto-save: true
+
+# ============================================================
+# Protection
+# ============================================================
+
+protection:
+  # Prevent players from taking shop items.
+  prevent-item-taking: true
+
+  # Prevent players from placing items into shop GUIs.
+  prevent-item-placing: true
+
+# ============================================================
+# Sounds
+# ============================================================
+
+sounds:
+  enabled: true
+
+  purchase:
+    sound: ENTITY_PLAYER_LEVELUP
+    volume: 1.0
+    pitch: 1.0
+
+  error:
+    sound: ENTITY_VILLAGER_NO
+    volume: 1.0
+    pitch: 1.0
