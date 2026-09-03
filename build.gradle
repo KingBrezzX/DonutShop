@@ -3,23 +3,9 @@ plugins {
 }
 
 group = 'com.kingbrezz'
-version = '1.1.1'
+version = '1.1.2'
 
 description = 'Professional buy-only GUI shop powered by Vault Economy.'
-
-repositories {
-    mavenCentral()
-
-    maven {
-        name = 'papermc'
-        url = uri('https://repo.papermc.io/repository/maven-public/')
-    }
-
-    maven {
-        name = 'jitpack'
-        url = uri('https://jitpack.io')
-    }
-}
 
 dependencies {
     // Paper 26.2 is built for Java/JVM 25.
