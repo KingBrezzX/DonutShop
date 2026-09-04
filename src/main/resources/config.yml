@@ -58,6 +58,30 @@ shop:
     back-slot: 0
     back-name: "&c&lBack"
 
+  # Quantity confirmation screen shown after selecting an item.
+  # Layout: red decrease controls | selected item / confirm | green increase controls.
+  confirmation:
+    enabled: true
+    title: "&8Confirmation Menu"
+    filler: GRAY_STAINED_GLASS_PANE
+    decrease-material: RED_STAINED_GLASS_PANE
+    increase-material: LIME_STAINED_GLASS_PANE
+    decrease-64-name: "&cRemove 64"
+    decrease-10-name: "&cRemove 10"
+    decrease-1-name: "&cRemove 1"
+    reset-name: "&cSet To 1"
+    plus-1-name: "&aAdd 1"
+    plus-10-name: "&aAdd 10"
+    plus-64-name: "&aSet To 64"
+    confirm-name: "&aConfirm"
+    confirm-lore: "&fClick To Buy"
+    decrease-lore:
+      - "&7Current quantity: &f{quantity}"
+      - "&eClick to adjust the quantity"
+    increase-lore:
+      - "&7Current quantity: &f{quantity}"
+      - "&eClick to adjust the quantity"
+
   item-lore:
     buy: ""
     click: "&eLeft-click to buy from the shop &8• &eShift-click for bulk"
