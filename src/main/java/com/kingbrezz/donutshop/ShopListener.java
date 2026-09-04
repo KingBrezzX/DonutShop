@@ -27,12 +27,18 @@ public final class ShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getView().getTopInventory().getHolder() instanceof ShopMenu.Holder holder)) return;
+        Object topHolder = event.getView().getTopInventory().getHolder();
+        if (!(topHolder instanceof ShopMenu.Holder) && !(topHolder instanceof ConfirmationMenu.Holder)) return;
 
         int topSize = event.getView().getTopInventory().getSize();
         if (event.getRawSlot() < 0 || event.getRawSlot() >= topSize) return;
 
         event.setCancelled(true);
+        if (topHolder instanceof ConfirmationMenu.Holder confirmation) {
+            handleConfirmationClick(player, confirmation, event.getRawSlot());
+            return;
+        }
+        ShopMenu.Holder holder = (ShopMenu.Holder) topHolder;
         if (holder.isMain()) {
             handleMainClick(player, event.getRawSlot());
             return;
@@ -56,6 +62,53 @@ public final class ShopListener implements Listener {
         ShopMenu.openCategory(plugin, player, category);
     }
 
+    private void handleConfirmationClick(Player player, ConfirmationMenu.Holder holder, int rawSlot) {
+        int max = ConfirmationMenu.maxPurchaseAmount(plugin);
+        int quantity = holder.quantity();
+
+        switch (rawSlot) {
+            case 9 -> quantity = Math.max(1, quantity - 64);
+            case 10 -> quantity = Math.max(1, quantity - 10);
+            case 11 -> quantity = Math.max(1, quantity - 1);
+            case 12 -> quantity = 1;
+            case 13 -> {
+                completePurchase(player, holder.category(), holder.item(), quantity);
+                return;
+            }
+            case 15 -> quantity = Math.min(max, quantity + 1);
+            case 16 -> quantity = Math.min(max, quantity + 10);
+            case 17 -> quantity = Math.min(max, 64);
+            default -> { return; }
+        }
+
+        holder.quantity(quantity);
+        ConfirmationMenu.render(plugin, holder);
+    }
+
+    private void completePurchase(Player player, ShopCategory category, ShopItem item, int amount) {
+        ShopManager.PurchaseResult result = plugin.getShopManager().buy(player, item, amount);
+        if (result.success()) {
+            String displayName = PLAIN.serialize(ShopMenu.component(item.displayName()));
+            plugin.getLanguageManager().send(player, "messages.purchase-success", Map.of(
+                    "amount", String.valueOf(amount),
+                    "item", displayName,
+                    "price", format(result.total())
+            ));
+            playSound(player, "sounds.purchase");
+            ShopMenu.openCategory(plugin, player, category);
+            return;
+        }
+
+        String messageKey = switch (result.reason()) {
+            case BALANCE -> "messages.not-enough-money";
+            case INVENTORY -> "messages.inventory-full";
+            case INVALID -> "messages.cannot-buy";
+            case ECONOMY, NONE -> "messages.purchase-failed";
+        };
+        plugin.getLanguageManager().send(player, messageKey);
+        playSound(player, "sounds.error");
+    }
+
     private void handleCategoryClick(Player player, ShopMenu.Holder holder, int rawSlot, boolean shiftClick) {
         int backSlot = plugin.getConfig().getInt("shop.category-menu.back-slot", 0);
         if (rawSlot == backSlot) {
@@ -74,31 +127,17 @@ public final class ShopListener implements Listener {
                 : plugin.getConfig().getInt("shop.default-amount", 1);
         amount = Math.max(1, amount);
 
-        ShopManager.PurchaseResult result = plugin.getShopManager().buy(player, item, amount);
-        if (result.success()) {
-            String displayName = PLAIN.serialize(ShopMenu.component(item.displayName()));
-            plugin.getLanguageManager().send(player, "messages.purchase-success", Map.of(
-                    "amount", String.valueOf(amount),
-                    "item", displayName,
-                    "price", format(result.total())
-            ));
-            playSound(player, "sounds.purchase");
+        if (!plugin.getConfig().getBoolean("shop.confirmation.enabled", true)) {
+            completePurchase(player, category, item, amount);
             return;
         }
-
-        String messageKey = switch (result.reason()) {
-            case BALANCE -> "messages.not-enough-money";
-            case INVENTORY -> "messages.inventory-full";
-            case INVALID -> "messages.cannot-buy";
-            case ECONOMY, NONE -> "messages.purchase-failed";
-        };
-        plugin.getLanguageManager().send(player, messageKey);
-        playSound(player, "sounds.error");
+        ConfirmationMenu.open(plugin, player, category, item, amount);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrag(InventoryDragEvent event) {
-        if (!(event.getView().getTopInventory().getHolder() instanceof ShopMenu.Holder)) return;
+        Object holder = event.getView().getTopInventory().getHolder();
+        if (!(holder instanceof ShopMenu.Holder) && !(holder instanceof ConfirmationMenu.Holder)) return;
         int topSize = event.getView().getTopInventory().getSize();
         if (event.getRawSlots().stream().anyMatch(slot -> slot < topSize)) {
             event.setCancelled(true);
